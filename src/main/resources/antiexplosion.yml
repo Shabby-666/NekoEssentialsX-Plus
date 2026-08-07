@@ -1,0 +1,65 @@
+# ============================================
+# 防爆系统配置（AntiExplosion 模块）
+# ============================================
+
+# 防爆系统总开关
+enabled: true
+
+# 生物爆炸配置（苦力怕、凋零、末影龙等）
+entity-explosion:
+  enabled: true
+  types: []            # 留空表示所有生物类型，可填 creeper、wither、ender_dragon 等
+  break-blocks: false  # 是否允许破坏方块
+  damage-entities: true
+  max-radius: 0        # 最大爆炸半径，0 表示不限制
+  power-multiplier: 1.0
+
+# 实体破坏方块配置（凋零、末影龙等实体破坏方块）
+entity-block-break:
+  enabled: true
+  types: []            # 留空表示所有实体
+  allow-break: false   # 是否允许实体破坏方块
+  allowed-blocks: []   # 允许破坏的方块（当 allow-break 为 false 时生效）
+  blocked-blocks: []   # 禁止破坏的方块
+  max-range: 0
+  apply-to-all-entities: true
+
+# TNT 爆炸配置
+tnt-explosion:
+  enabled: true
+  break-blocks: false
+  damage-entities: true
+  max-radius: 0
+  power-multiplier: 1.0
+
+# 末影水晶爆炸配置
+end-crystal-explosion:
+  enabled: true
+  break-blocks: false
+  damage-entities: true
+  max-radius: 0
+  power-multiplier: 1.0
+
+# 床爆炸配置
+bed-explosion:
+  enabled: true
+  break-blocks: false
+  damage-entities: true
+  max-radius: 0
+  power-multiplier: 1.0
+
+# 其他爆炸配置
+other-explosion:
+  enabled: true
+  break-blocks: false
+  damage-entities: true
+  max-radius: 0
+  power-multiplier: 1.0
+
+# 日志配置
+logging:
+  enabled: true
+  level: INFO
+  detailed: true
+  log-blocked: true
+  log-allowed: false

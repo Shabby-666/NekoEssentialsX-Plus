@@ -1,0 +1,17 @@
+# NekoEssentialsX+ 主配置文件
+
+# 经济系统设置
+economy:
+  currency-name: "金币"
+  currency-name-plural: "金币"
+
+# AFK 设置（秒）
+afk:
+  timeout: 300
+
+# 兼容旧版配置检查（防爆配置已移至 antiexplosion.yml，此处仅用于恢复检测）
+anti-explosion:
+  entity-block-break:
+    enabled: false
+    allow-break: false
+    apply-to-all-entities: false

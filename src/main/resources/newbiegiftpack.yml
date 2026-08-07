@@ -1,0 +1,36 @@
+# 新手礼包物品配置
+# items:
+#   物品ID:
+#     name: 物品显示名
+#     material: 物品材质（必须）
+#     amount: 数量
+#     probability: 概率（0-1）
+#     lore:
+#       - 第一行描述
+#     enchants:
+#       ENCHANTMENT_NAME: 等级
+
+items:
+  starter_sword:
+    name: "新手剑"
+    material: IRON_SWORD
+    amount: 1
+    probability: 1.0
+    lore:
+      - "新手玩家的第一把剑！"
+    enchants:
+      SHARPNESS: 1
+  starter_pickaxe:
+    name: "新手镐"
+    material: STONE_PICKAXE
+    amount: 1
+    probability: 1.0
+    lore:
+      - "新手玩家的第一把镐！"
+  starter_food:
+    name: "新手干粮"
+    material: BREAD
+    amount: 16
+    probability: 1.0
+    lore:
+      - "饿了就来一口！"

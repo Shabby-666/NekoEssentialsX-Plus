@@ -1,0 +1,19 @@
+# 头衔配置
+
+enabled: true
+
+titles:
+  newbie:
+    name: "新手"
+    prefix: "[新手] "
+    suffix: ""
+    permission: "nekoessentialsx.titles.newbie"
+    priority: 1
+    enabled: true
+  vip:
+    name: "VIP"
+    prefix: "[VIP] "
+    suffix: ""
+    permission: "nekoessentialsx.titles.vip"
+    priority: 2
+    enabled: true

@@ -1,0 +1,162 @@
+name: NekoEssentialsX+
+version: 1.0.0-beta
+main: com.nekoessentialsx.NekoEssentialX
+api-version: 1.20
+load: POSTWORLD
+authors: [_Chinese_Player_]
+description: NekoEssentialsX+ 猫娘风格的Minecraft综合插件
+
+softdepend: [Vault, NextNeko]
+
+commands:
+  showdate: {}
+  # ===== 防爆系统（AntiExplosion 集成）=====
+  explosion:
+    description: 打开防爆系统配置GUI
+    usage: /explosion
+    permission: nekoessentialsx.antiexplosion.gui
+  antiexplosion:
+    description: 防爆系统管理命令
+    usage: /antiexplosion <reload|status|help>
+    permission: nekoessentialsx.use
+
+  # ===== 基础命令 =====
+  nekoessentialx:
+    description: 插件主命令
+    usage: /nekoessentialx [reload|version|claimgift|checkin]
+    aliases: [neko, nezx]
+  help:
+    description: 显示帮助信息
+  info:
+    description: 显示服务器信息
+  list:
+    description: 显示在线玩家列表
+  mainmenu:
+    description: 打开主菜单
+    aliases: [menu, mm, gui, nekomenu]
+
+  # ===== 家系统 =====
+  home:
+    description: 传送到家
+  sethome:
+    description: 设置家
+  delhome:
+    description: 删除家
+
+  # ===== 传送 =====
+  warp:
+    description: 前往传送点
+  setwarp:
+    description: 设置传送点
+  delwarp:
+    description: 删除传送点
+  back:
+    description: 回到最近一次传送/死亡前的位置
+
+  # ===== TPA =====
+  tpa:
+    description: 请求传送到玩家
+  tpaccept:
+    description: 接受传送请求
+    aliases: [tpyes]
+  tpdeny:
+    description: 拒绝传送请求
+    aliases: [tpno]
+  tpacancel:
+    description: 取消传送请求
+
+  # ===== 经济 =====
+  money:
+    description: 经济系统主命令
+    aliases: [eco, bal, cash]
+  pay:
+    description: 转账给玩家
+
+  # ===== 头衔 =====
+  title:
+    description: 头衔系统
+    aliases: [prefix, tag]
+  etitle:
+    description: 头衔系统（管理员使用）
+    aliases: [edittitle]
+    permission: nekoessentialsx.title.admin
+  titlegui:
+    description: 打开头衔GUI
+
+  # ===== 私聊 =====
+  msg:
+    description: 发送私聊消息
+    aliases: [tell, whisper, w, dm]
+  r:
+    description: 回复最近私聊消息
+    aliases: [reply]
+
+  # ===== 其它 =====
+  afk:
+    description: 设置AFK状态
+  kit:
+    description: 领取工具包
+  checkin:
+    description: 每日签到
+  claimgift:
+    description: 领取新手礼包
+
+permissions:
+  NekoEssentialsX.*:
+    default: op
+    description: NekoEssentialsX+ 全部权限
+    children:
+      nekoessentialsx.use: true
+      nekoessentialsx.admin: true
+      nekoessentialsx.title.admin: true
+      nekoessentialsx.economy.admin: true
+      nekoessentialsx.antiexplosion.*: true
+  nekoessentialsx.use:
+    default: true
+    description: 允许使用插件基础功能
+  nekoessentialsx.admin:
+    default: op
+    description: 管理员权限
+  nekoessentialsx.tpa:
+    default: true
+    description: 允许使用TPA命令
+  nekoessentialsx.home:
+    default: true
+    description: 允许使用家系统
+  nekoessentialsx.warp:
+    default: true
+    description: 允许使用传送点系统
+  nekoessentialsx.back:
+    default: true
+    description: 允许使用/back回退命令
+  nekoessentialsx.title:
+    default: true
+    description: 允许使用头衔命令
+  nekoessentialsx.title.admin:
+    default: op
+    description: 允许管理所有头衔
+  nekoessentialsx.economy.admin:
+    default: op
+    description: 允许管理经济
+  nekoessentialsx.kit:
+    default: true
+    description: 允许使用工具包
+  nekoessentialsx.afk:
+    default: true
+    description: 允许使用AFK
+  nekoessentialsx.antiexplosion.*:
+    default: op
+    description: 防爆系统全部权限
+    children:
+      nekoessentialsx.antiexplosion.gui: true
+      nekoessentialsx.antiexplosion.config: true
+      nekoessentialsx.antiexplosion.reload: true
+  nekoessentialsx.antiexplosion.gui:
+    default: op
+    description: 允许打开防爆系统GUI
+  nekoessentialsx.antiexplosion.config:
+    default: op
+    description: 允许配置防爆系统
+  nekoessentialsx.antiexplosion.reload:
+    default: op
+    description: 允许重载防爆系统配置

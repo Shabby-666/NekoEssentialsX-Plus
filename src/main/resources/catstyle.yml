@@ -1,0 +1,17 @@
+# 猫娘风格配置文件
+
+enabled: true
+prefix: "§6[喵~] §f"
+suffix: " §6喵~"
+replace-system-messages: true
+replace-command-messages: true
+
+message-replacements:
+  unknown_command: "这个命令不存在的说~%"
+  you_dont_have_permission: "你没有权限使用这个命令的说~%"
+  please_enter_a_valid_number: "请输入一个有效的数字的说~%"
+  player_not_found: "找不到这个玩家的说~%"
+  teleport_request_sent: "传送请求已经发送出去啦~"
+  teleport_request_accepted: "传送请求被接受啦~"
+  teleport_request_denied: "传送请求被拒绝啦~"
+  teleport_request_timed_out: "传送请求超时了的说~"

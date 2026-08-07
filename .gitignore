@@ -1,0 +1,31 @@
+# Maven
+/target/
+/bin/
+/lib/
+/dependency-reduced-pom.xml
+
+# IDE
+/.idea/
+/.gradle/
+*.iml
+*.ipr
+*.iws
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+logs/
+*.log
+
+# Configuration (保持 src/main/resources 下的默认配置可提交)
+*.properties
+*.yml
+!src/main/resources/**/*.yml
+
+# 本地库/依赖
+*.jar
+
+# Essentials-2.x (外部依赖项目，不需要上传)
+/Essentials-2.x/

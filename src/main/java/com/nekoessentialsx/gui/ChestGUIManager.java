@@ -1748,7 +1748,7 @@ public class ChestGUIManager {
         addConfigToggle(gui, 13, Material.IRON_SWORD, "claws.enabled", "猫爪");
         addConfigToggle(gui, 14, Material.SKELETON_SKULL, "mob-targeting.enabled", "生物目标");
         addConfigToggle(gui, 15, Material.LEATHER_CHESTPLATE, "armor-bonus.enabled", "护甲加成");
-        addConfigToggle(gui, 16, Material.WITHER_ROSE, "owner-death.feature.enabled", "主人死亡");
+        addConfigToggle(gui, 16, Material.WITHER_ROSE, "owner-death.feature.enabled", "同生共死");
         addConfigToggle(gui, 20, Material.GOLDEN_APPLE, "health-skill.cooldown", "健康恢复冷却");
         addConfigToggle(gui, 21, Material.CLOCK, "night-effects.enabled", "夜间效果");
         addConfigToggle(gui, 22, Material.NETHERITE_SWORD, "passive-attack-boost.enabled", "被动攻击增强");

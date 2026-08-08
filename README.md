@@ -186,6 +186,30 @@ NekoEssentialsX+是一个适用于Minecraft Spigot服务器的综合性插件，
 - `nekoessentialsx.antiexplosion.config` - 允许配置防爆系统
 - `nekoessentialsx.antiexplosion.reload` - 允许重载防爆配置
 
+## 与 NextNeko 的集成
+
+NekoEssentialsX+ 与 [NextNeko](https://github.com/Shabby-666/NextNeko) 深度联动，只需将两个插件同时放入 `plugins` 文件夹即可自动生效（无需额外配置）。
+
+### 猫娘头衔集成（NekoTitleIntegration）
+- 启动时自动读取 NextNeko 配置中的 `neko-chat.prefix`，将其同步注册为一个名为 **「猫娘」**（ID: `nextneko`）的头衔
+- 猫娘玩家登录或打开主菜单时自动获得该头衔（不强制佩戴，可自由装卸）
+- 头衔前缀随 NextNeko 配置实时同步，修改 NextNeko 的聊天前缀后重启即可生效
+
+### NextNeko 配置 GUI（管理员）
+- 主菜单中提供 **「NextNeko设置」** 入口（需 `nekoessentialsx.admin` 或 `nextneko.admin` 权限）
+- 无需再手改 NextNeko 的 config.yml，直接在箱子GUI中开关/调整：
+  - 猫娘聊天、只吃肉类、猫薄荷、猫爪、生物目标、护甲加成、主人死亡、健康恢复冷却、夜间效果、被动攻击增强、猫娘伤害调整、猫娘生物行为、猫娘爬墙、尾巴拉扯
+
+### 主人与猫娘管理
+- 主菜单中提供 **「主人与猫娘管理」** 入口，可查看和管理主人-猫娘关系（猫娘身份或管理员可用）
+- 通过反射桥接 NextNeko 的公开 API，读写猫娘/主人关系、尾拉开关、接近提醒开关、爬墙状态等
+
+### 聊天格式协调
+- 当 NextNeko 检测到本插件已安装时，不再强制设置猫娘聊天前缀/格式，聊天格式交由 NekoEssentialsX+ 统一管理
+- 猫娘玩家可在主菜单中自行佩戴/卸下「猫娘」头衔
+
+> 技术说明：NekoEssentialsX+ 通过 `NextNekoBridge` 以反射方式调用 NextNeko 的公开 API，两个插件之间**无编译期耦合**，即使未安装 NextNeko 也能正常运行。
+
 ## 插件特点
 
 ### 风格特色

@@ -113,11 +113,14 @@ public class AntiExplosionModule {
                 case "status":
                     sender.sendMessage("§6===== AntiExplosion 状态 =====");
                     sender.sendMessage("§7防爆系统状态: " + (explosionProtectionManager.isEnabled() ? "§a启用" : "§c禁用"));
-                    sender.sendMessage("§7生物爆炸防护: " + (explosionProtectionManager.getEntityExplosionConfig().isEnabled() ? "§a启用" : "§c禁用"));
-                    sender.sendMessage("§7TNT爆炸防护: " + (explosionProtectionManager.getTntExplosionConfig().isEnabled() ? "§a启用" : "§c禁用"));
-                    sender.sendMessage("§7末影水晶爆炸防护: " + (explosionProtectionManager.getEndCrystalExplosionConfig().isEnabled() ? "§a启用" : "§c禁用"));
-                    sender.sendMessage("§7床爆炸防护: " + (explosionProtectionManager.getBedExplosionConfig().isEnabled() ? "§a启用" : "§c禁用"));
-                    sender.sendMessage("§7实体破坏方块防护: " + (explosionProtectionManager.getEntityBlockBreakConfig().isEnabled() ? "§a启用" : "§c禁用"));
+                    sender.sendMessage("§7已单独配置的维度: " + (explosionProtectionManager.getConfiguredWorlds().isEmpty()
+                            ? "§7无（全部使用默认配置）" : "§a" + String.join("§7, §a", explosionProtectionManager.getConfiguredWorlds())));
+                    sender.sendMessage("§7默认维度-苦力怕: " + (explosionProtectionManager.getSource("default", "creeper").isEnabled() ? "§a启用" : "§c禁用")
+                            + " | TNT: " + (explosionProtectionManager.getSource("default", "tnt").isEnabled() ? "§a启用" : "§c禁用")
+                            + " | 末影水晶: " + (explosionProtectionManager.getSource("default", "end-crystal").isEnabled() ? "§a启用" : "§c禁用")
+                            + " | 床: " + (explosionProtectionManager.getSource("default", "bed").isEnabled() ? "§a启用" : "§c禁用"));
+                    sender.sendMessage("§7默认维度-实体破坏方块防护: " + (explosionProtectionManager.getBlockBreakConfig("default").isEnabled() ? "§a启用" : "§c禁用"));
+                    sender.sendMessage("§7使用 §a/explosion §7进入 GUI 可按维度单独配置");
                     sender.sendMessage("§6==============================");
                     return true;
 

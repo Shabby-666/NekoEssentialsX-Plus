@@ -1,65 +1,142 @@
 # ============================================
 # 防爆系统配置（AntiExplosion 模块）
+# 支持按维度（世界）单独配置，每个维度的设置完全独立。
+# 所有设置均可在游戏内通过 /explosion 打开 GUI 修改。
 # ============================================
 
 # 防爆系统总开关
 enabled: true
 
-# 生物爆炸配置（苦力怕、凋零、末影龙等）
-entity-explosion:
-  enabled: true
-  types: []            # 留空表示所有生物类型，可填 creeper、wither、ender_dragon 等
-  break-blocks: false  # 是否允许破坏方块
-  damage-entities: true
-  max-radius: 0        # 最大爆炸半径，0 表示不限制
-  power-multiplier: 1.0
-
-# 实体破坏方块配置（凋零、末影龙等实体破坏方块）
-entity-block-break:
-  enabled: true
-  types: []            # 留空表示所有实体
-  allow-break: false   # 是否允许实体破坏方块
-  allowed-blocks: []   # 允许破坏的方块（当 allow-break 为 false 时生效）
-  blocked-blocks: []   # 禁止破坏的方块
-  max-range: 0
-  apply-to-all-entities: true
-
-# TNT 爆炸配置
-tnt-explosion:
-  enabled: true
-  break-blocks: false
-  damage-entities: true
-  max-radius: 0
-  power-multiplier: 1.0
-
-# 末影水晶爆炸配置
-end-crystal-explosion:
-  enabled: true
-  break-blocks: false
-  damage-entities: true
-  max-radius: 0
-  power-multiplier: 1.0
-
-# 床爆炸配置
-bed-explosion:
-  enabled: true
-  break-blocks: false
-  damage-entities: true
-  max-radius: 0
-  power-multiplier: 1.0
-
-# 其他爆炸配置
-other-explosion:
-  enabled: true
-  break-blocks: false
-  damage-entities: true
-  max-radius: 0
-  power-multiplier: 1.0
-
-# 日志配置
+# ============================================
+# 日志配置（全局生效）
+# ============================================
 logging:
   enabled: true
   level: INFO
   detailed: true
   log-blocked: true
   log-allowed: false
+
+# ============================================
+# 「默认」维度配置
+# 服务器里没有被单独配置的世界，自动套用这里的设置。
+# 每个爆炸源都有四个独立开关：
+#   enabled          本类防护总开关
+#   break-blocks     允许破坏方块
+#   damage-players   允许伤害玩家
+#   damage-entities  允许伤害其他生物
+#   power-multiplier 爆炸威力倍率
+#   max-radius       最大爆炸半径（0=不限制）
+# ============================================
+default:
+  # 苦力怕爆炸
+  creeper:
+    enabled: true
+    break-blocks: false
+    damage-players: true
+    damage-entities: true
+    power-multiplier: 1.0
+    max-radius: 0
+  # 凋零（含凋零骷髅头）爆炸
+  wither:
+    enabled: true
+    break-blocks: false
+    damage-players: true
+    damage-entities: true
+    power-multiplier: 1.0
+    max-radius: 0
+  # 末影龙（含龙息）爆炸
+  ender-dragon:
+    enabled: true
+    break-blocks: false
+    damage-players: true
+    damage-entities: true
+    power-multiplier: 1.0
+    max-radius: 0
+  # 恶魂火球爆炸
+  ghast-fireball:
+    enabled: true
+    break-blocks: false
+    damage-players: true
+    damage-entities: true
+    power-multiplier: 1.0
+    max-radius: 0
+  # 烈焰人火球爆炸
+  blaze-fireball:
+    enabled: true
+    break-blocks: false
+    damage-players: true
+    damage-entities: true
+    power-multiplier: 1.0
+    max-radius: 0
+  # 风弹爆炸（Breeze 风弹，1.20.5+ 生效）
+  wind:
+    enabled: true
+    break-blocks: false
+    damage-players: true
+    damage-entities: true
+    power-multiplier: 1.0
+    max-radius: 0
+  # TNT 爆炸（含 TNT 矿车）
+  tnt:
+    enabled: true
+    break-blocks: false
+    damage-players: true
+    damage-entities: true
+    power-multiplier: 1.0
+    max-radius: 0
+  # 末影水晶爆炸
+  end-crystal:
+    enabled: true
+    break-blocks: false
+    damage-players: true
+    damage-entities: true
+    power-multiplier: 1.0
+    max-radius: 0
+  # 床爆炸（所有颜色，在下界/末地睡觉时）
+  bed:
+    enabled: true
+    break-blocks: false
+    damage-players: true
+    damage-entities: true
+    power-multiplier: 1.0
+    max-radius: 0
+  # 重生锚爆炸
+  respawn-anchor:
+    enabled: true
+    break-blocks: false
+    damage-players: true
+    damage-entities: true
+    power-multiplier: 1.0
+    max-radius: 0
+  # 其他爆炸（烟花、发射器等）
+  other:
+    enabled: true
+    break-blocks: false
+    damage-players: true
+    damage-entities: true
+    power-multiplier: 1.0
+    max-radius: 0
+  # 实体直接破坏方块（凋零、末影龙撞击等）
+  entity-block-break:
+    enabled: true
+    types: []               # 留空=所有实体，可填 wither、ender_dragon 等
+    allow-break: false      # 是否允许实体破坏方块
+    allowed-blocks: []      # 允许破坏的方块（当 allow-break 为 false 时生效）
+    blocked-blocks: []      # 禁止破坏的方块
+    max-range: 0
+    apply-to-all-entities: true
+
+# ============================================
+# 按世界/维度单独配置（键为世界名，如 world / world_nether / world_the_end）
+# 未列出的世界使用「默认」配置。
+# 示例：
+# worlds:
+#   world:
+#     creeper:
+#       enabled: false          # 主世界苦力怕不再防护
+#       break-blocks: true      # 但允许炸方块
+#     tnt:
+#       damage-players: false   # 主世界 TNT 不再伤害玩家
+# ============================================
+worlds: {}

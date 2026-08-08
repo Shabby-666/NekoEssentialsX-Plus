@@ -2,521 +2,348 @@ package com.nekoessentialsx.antiexplosion.listener;
 
 import com.nekoessentialsx.antiexplosion.AntiExplosionModule;
 import com.nekoessentialsx.antiexplosion.manager.ExplosionProtectionManager;
-import org.bukkit.Material;
+import org.bukkit.Location;
 import org.bukkit.block.Block;
-import org.bukkit.entity.*;
+import org.bukkit.entity.Creeper;
+import org.bukkit.entity.DragonFireball;
+import org.bukkit.entity.EnderCrystal;
+import org.bukkit.entity.EnderDragon;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.LargeFireball;
+import org.bukkit.entity.Player;
+import org.bukkit.entity.SmallFireball;
+import org.bukkit.entity.TNTPrimed;
+import org.bukkit.entity.Wither;
+import org.bukkit.entity.WitherSkull;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockExplodeEvent;
+import org.bukkit.event.entity.EntityChangeBlockEvent;
+import org.bukkit.event.entity.EntityDamageByBlockEvent;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.entity.ExplosionPrimeEvent;
-import org.bukkit.event.entity.EntityChangeBlockEvent;
-import org.bukkit.event.entity.EntityDamageByEntityEvent;
-import org.bukkit.event.entity.EntityInteractEvent;
 
+/**
+ * 防爆监听器。
+ *
+ * <p>「允许破坏方块」「允许伤害玩家」「允许伤害生物」三个开关彼此独立：</p>
+ * <ul>
+ *   <li>禁止破坏方块 → 只清理爆炸破坏的方块列表（{@code blockList().clear()}），
+ *       不取消事件，爆炸伤害照常结算；</li>
+ *   <li>禁止伤害 → 只在伤害事件里拦截对应目标（玩家/生物），不取消爆炸事件，
+ *       方块照常被破坏；</li>
+ *   <li>仅当三个开关全部关闭时，才直接取消整个爆炸事件。</li>
+ * </ul>
+ */
 public class ExplosionProtectionListener implements Listener {
     private final AntiExplosionModule module;
-    private final ExplosionProtectionManager explosionManager;
+    private final ExplosionProtectionManager manager;
 
-    public ExplosionProtectionListener(AntiExplosionModule module, ExplosionProtectionManager explosionManager) {
+    public ExplosionProtectionListener(AntiExplosionModule module, ExplosionProtectionManager manager) {
         this.module = module;
-        this.explosionManager = explosionManager;
+        this.manager = manager;
     }
 
     /**
-     * 处理实体爆炸事件
+     * 处理实体爆炸事件（苦力怕、TNT、末影水晶、龙息等）
      */
     @EventHandler(priority = EventPriority.HIGH)
     public void onEntityExplode(EntityExplodeEvent event) {
-        if (!explosionManager.isEnabled()) {
+        if (!manager.isEnabled()) {
             return;
         }
 
-        Entity entity = event.getEntity();
-        String explosionType = identifyExplosionType(entity);
-
-        // 检查爆炸类型并应用相应的配置
-        switch (explosionType) {
-            case "entity-explosion":
-                ExplosionProtectionManager.ExplosionConfig entityConfig = explosionManager.getEntityExplosionConfig();
-                if (entityConfig.isEnabled()) {
-                    String entityType = entity.getType().toString().toLowerCase();
-                    if (entityConfig.getTypes().isEmpty() || entityConfig.getTypes().contains(entityType)) {
-                        applyExplosionConfig(event, entityConfig, "entity-explosion", entityType);
-                    }
-                }
-                break;
-            case "tnt-explosion":
-                handleTNTExplosion(event);
-                break;
-            case "end-crystal-explosion":
-                handleEndCrystalExplosion(event);
-                break;
-            case "bed-explosion":
-                handleBedExplosion(event);
-                break;
-            default:
-                handleOtherExplosion(event);
-                break;
-        }
-    }
-
-    /**
-     * 处理方块爆炸事件
-     */
-    @EventHandler(priority = EventPriority.HIGHEST)
-    public void onBlockExplode(BlockExplodeEvent event) {
-        if (!explosionManager.isEnabled()) {
+        String worldName = getWorldName(event.getLocation());
+        String sourceKey = identifyExplosionSource(event.getEntity(), event.getLocation());
+        if (sourceKey == null) {
             return;
         }
 
-        Block block = event.getBlock();
-        String explosionType = identifyBlockExplosionType(block);
-
-        // 检查爆炸类型并应用相应的配置
-        switch (explosionType) {
-            case "tnt-explosion":
-                handleTNTBlockExplosion(event);
-                break;
-            default:
-                handleOtherBlockExplosion(event);
-                break;
-        }
-    }
-
-    /**
-     * 处理实体改变方块事件（凋零、末影龙等破坏方块）
-     */
-    @EventHandler(priority = EventPriority.HIGHEST)
-    public void onEntityChangeBlock(EntityChangeBlockEvent event) {
-        if (!explosionManager.isEnabled()) {
-            return;
-        }
-
-        Entity entity = event.getEntity();
-        Block block = event.getBlock();
-        ExplosionProtectionManager.EntityBlockBreakConfig blockBreakConfig = explosionManager.getEntityBlockBreakConfig();
-        String entityType = entity.getType().toString().toLowerCase();
-        String blockType = block.getType().name().toLowerCase();
-
-        // 记录所有实体改变方块事件，用于调试
-        explosionManager.logExplosion("entity-block-break-debug", entityType, false,
-                String.format("位置: %s, 方块类型: %s, 实体类型: %s, 新方块类型: %s",
-                        block.getLocation(), blockType, entityType, event.getTo().name().toLowerCase()));
-
-        if (blockBreakConfig.isEnabled()) {
-            // 检查是否应用于该实体
-            boolean isEntityAffected = false;
-            if (blockBreakConfig.isApplyToAllEntities()) {
-                isEntityAffected = true;
-            } else if (blockBreakConfig.getTypes().contains(entityType)) {
-                isEntityAffected = true;
-            }
-
-            if (isEntityAffected) {
-                // 检查是否允许破坏
-                boolean shouldAllowBreak = blockBreakConfig.isAllowBreak();
-
-                // 检查方块类型限制
-                if (!shouldAllowBreak) {
-                    // 检查是否在允许列表中
-                    if (!blockBreakConfig.getAllowedBlocks().isEmpty() && blockBreakConfig.getAllowedBlocks().contains(blockType)) {
-                        shouldAllowBreak = true;
-                    }
-
-                    // 检查是否在禁止列表中
-                    if (blockBreakConfig.getBlockedBlocks().contains(blockType)) {
-                        shouldAllowBreak = false;
-                    }
-                }
-
-                // 检查范围限制
-                if (shouldAllowBreak && blockBreakConfig.getMaxRange() > 0.0) {
-                    // 这里可以根据需要实现范围检查逻辑
-                }
-
-                // 如果不允许破坏，取消事件
-                if (!shouldAllowBreak) {
-                    event.setCancelled(true);
-                    explosionManager.logExplosion("entity-block-break", entityType, true,
-                            String.format("位置: %s, 方块类型: %s, 实体类型: %s",
-                                    block.getLocation(), blockType, entityType));
-                }
-            }
-        }
-    }
-
-    /**
-     * 处理实体损伤事件（用于处理末影龙撞击破坏方块）
-     */
-    @EventHandler(priority = EventPriority.HIGHEST)
-    public void onEntityDamageByEntity(EntityDamageByEntityEvent event) {
-        if (!explosionManager.isEnabled()) {
-            return;
-        }
-
-        // 检查是否是末影龙造成的伤害
-        Entity damager = event.getDamager();
-        if (damager instanceof EnderDragon) {
-            ExplosionProtectionManager.EntityBlockBreakConfig blockBreakConfig = explosionManager.getEntityBlockBreakConfig();
-
-            if (blockBreakConfig.isEnabled()) {
-                String entityType = "ender_dragon";
-
-                // 检查是否应用于该实体
-                boolean isEntityAffected = false;
-                if (blockBreakConfig.isApplyToAllEntities()) {
-                    isEntityAffected = true;
-                } else if (blockBreakConfig.getTypes().contains(entityType)) {
-                    isEntityAffected = true;
-                }
-
-                if (isEntityAffected && !blockBreakConfig.isAllowBreak()) {
-                    // 取消末影龙造成的伤害
-                    event.setCancelled(true);
-                    explosionManager.logExplosion("entity-damage", entityType, true,
-                            String.format("位置: %s, 目标: %s",
-                                    event.getEntity().getLocation(), event.getEntity().getType().toString().toLowerCase()));
-                }
-            }
-        }
-    }
-
-    /**
-     * 处理末影龙特定事件（用于处理末影龙破坏方块）
-     */
-    @EventHandler(priority = EventPriority.HIGHEST)
-    public void onEntityInteract(EntityInteractEvent event) {
-        if (!explosionManager.isEnabled()) {
-            return;
-        }
-
-        Entity entity = event.getEntity();
-        if (entity instanceof EnderDragon) {
-            ExplosionProtectionManager.EntityBlockBreakConfig blockBreakConfig = explosionManager.getEntityBlockBreakConfig();
-
-            if (blockBreakConfig.isEnabled()) {
-                String entityType = "ender_dragon";
-
-                // 检查是否应用于该实体
-                boolean isEntityAffected = false;
-                if (blockBreakConfig.isApplyToAllEntities()) {
-                    isEntityAffected = true;
-                } else if (blockBreakConfig.getTypes().contains(entityType)) {
-                    isEntityAffected = true;
-                }
-
-                if (isEntityAffected && !blockBreakConfig.isAllowBreak()) {
-                    // 取消末影龙的交互事件
-                    event.setCancelled(true);
-                    explosionManager.logExplosion("entity-interact", entityType, true,
-                            String.format("位置: %s",
-                                    entity.getLocation()));
-                }
-            }
-        }
-    }
-
-    /**
-     * 处理末影龙爆炸触发事件
-     */
-    @EventHandler(priority = EventPriority.HIGHEST)
-    public void onEnderDragonExplosionPrime(ExplosionPrimeEvent event) {
-        if (!explosionManager.isEnabled()) {
-            return;
-        }
-
-        Entity entity = event.getEntity();
-        if (entity instanceof EnderDragon) {
-            ExplosionProtectionManager.EntityBlockBreakConfig blockBreakConfig = explosionManager.getEntityBlockBreakConfig();
-
-            if (blockBreakConfig.isEnabled()) {
-                String entityType = "ender_dragon";
-
-                boolean isEntityAffected = false;
-                if (blockBreakConfig.isApplyToAllEntities()) {
-                    isEntityAffected = true;
-                } else if (blockBreakConfig.getTypes().contains(entityType)) {
-                    isEntityAffected = true;
-                }
-
-                if (isEntityAffected && !blockBreakConfig.isAllowBreak()) {
-                    event.setCancelled(true);
-                    explosionManager.logExplosion("ender-dragon-explosion-prime", entityType, true,
-                            String.format("位置: %s, 半径: %.2f",
-                                    entity.getLocation(), event.getRadius()));
-                }
-            }
-        }
-    }
-
-    /**
-     * 处理末影龙爆炸事件
-     */
-    @EventHandler(priority = EventPriority.HIGHEST)
-    public void onEnderDragonExplode(EntityExplodeEvent event) {
-        if (!explosionManager.isEnabled()) {
-            return;
-        }
-
-        Entity entity = event.getEntity();
-        if (entity instanceof EnderDragon) {
-            ExplosionProtectionManager.EntityBlockBreakConfig blockBreakConfig = explosionManager.getEntityBlockBreakConfig();
-
-            if (blockBreakConfig.isEnabled()) {
-                String entityType = "ender_dragon";
-
-                // 检查是否应用于该实体
-                boolean isEntityAffected = false;
-                if (blockBreakConfig.isApplyToAllEntities()) {
-                    isEntityAffected = true;
-                } else if (blockBreakConfig.getTypes().contains(entityType)) {
-                    isEntityAffected = true;
-                }
-
-                if (isEntityAffected && !blockBreakConfig.isAllowBreak()) {
-                    event.setCancelled(true);
-                    event.blockList().clear();
-                    explosionManager.logExplosion("ender-dragon-explode", entityType, true,
-                            String.format("位置: %s, 方块数量: %d",
-                                    event.getLocation(), event.blockList().size()));
-                }
-            }
-        }
-    }
-
-    /**
-     * 处理方块破坏事件，特别是末影龙破坏方块的情况
-     */
-    @EventHandler(priority = EventPriority.HIGHEST)
-    public void onBlockBreak(org.bukkit.event.block.BlockBreakEvent event) {
-        if (!explosionManager.isEnabled()) {
-            return;
-        }
-
-        org.bukkit.entity.Player player = event.getPlayer();
-        if (player == null) {
-            ExplosionProtectionManager.EntityBlockBreakConfig blockBreakConfig = explosionManager.getEntityBlockBreakConfig();
-
-            if (blockBreakConfig.isEnabled() && blockBreakConfig.isApplyToAllEntities() && !blockBreakConfig.isAllowBreak()) {
-                event.setCancelled(true);
-                explosionManager.logExplosion("block-break-no-player", "unknown", true,
-                        String.format("位置: %s, 方块类型: %s",
-                                event.getBlock().getLocation(), event.getBlock().getType().name().toLowerCase()));
-            }
-        }
-    }
-
-    /**
-     * 处理爆炸触发事件（用于调整爆炸威力）
-     */
-    @EventHandler(priority = EventPriority.HIGH)
-    public void onExplosionPrime(ExplosionPrimeEvent event) {
-        if (!explosionManager.isEnabled()) {
-            return;
-        }
-
-        Entity entity = event.getEntity();
-        String explosionType = identifyExplosionType(entity);
-        ExplosionProtectionManager.ExplosionConfig config = getConfigByType(explosionType);
-
-        if (config != null && config.isEnabled()) {
-            // 如果不允许破坏地形，取消爆炸事件
-            if (!config.isBreakBlocks()) {
-                event.setCancelled(true);
-                String entityType = entity.getType().toString().toLowerCase();
-                explosionManager.logExplosion("explosion-prime", entityType, true,
-                        String.format("位置: %s, 实体类型: %s",
-                                entity.getLocation(), entityType));
-                return;
-            }
-
-            // 调整爆炸威力
-            if (config.getPowerMultiplier() != 1.0) {
-                event.setRadius((float) (event.getRadius() * config.getPowerMultiplier()));
-            }
-
-            // 限制爆炸范围
-            if (config.getMaxRadius() > 0) {
-                if (event.getRadius() > config.getMaxRadius()) {
-                    event.setRadius((float) config.getMaxRadius());
-                }
-            }
-
-            // 如果不允许破坏地形，设置Fire为false
-            event.setFire(false);
-        }
-    }
-
-    /**
-     * 识别爆炸类型
-     */
-    private String identifyExplosionType(Entity entity) {
-        if (entity instanceof Creeper) {
-            return "entity-explosion";
-        } else if (entity instanceof TNTPrimed) {
-            return "tnt-explosion";
-        } else if (entity instanceof EnderCrystal) {
-            return "end-crystal-explosion";
-        } else if (entity instanceof EnderDragon) {
-            return "entity-explosion";
-        } else if (entity instanceof LivingEntity) {
-            return "entity-explosion";
-        } else {
-            return "other-explosion";
-        }
-    }
-
-    /**
-     * 识别方块爆炸类型
-     */
-    private String identifyBlockExplosionType(Block block) {
-        Material type = block.getType();
-        if (type == Material.TNT || type == Material.TNT_MINECART) {
-            return "tnt-explosion";
-        } else {
-            return "other-explosion";
-        }
-    }
-
-    /**
-     * 根据爆炸类型获取配置
-     */
-    private ExplosionProtectionManager.ExplosionConfig getConfigByType(String type) {
-        switch (type) {
-            case "entity-explosion":
-                return explosionManager.getEntityExplosionConfig();
-            case "tnt-explosion":
-                return explosionManager.getTntExplosionConfig();
-            case "end-crystal-explosion":
-                return explosionManager.getEndCrystalExplosionConfig();
-            case "bed-explosion":
-                return explosionManager.getBedExplosionConfig();
-            case "other-explosion":
-                return explosionManager.getOtherExplosionConfig();
-            default:
-                return null;
-        }
-    }
-
-    /**
-     * 处理生物爆炸
-     */
-    private void handleEntityExplode(EntityExplodeEvent event, Entity entity) {
-        ExplosionProtectionManager.ExplosionConfig config = explosionManager.getEntityExplosionConfig();
+        ExplosionProtectionManager.SourceConfig config = manager.getSource(worldName, sourceKey);
         if (!config.isEnabled()) {
             return;
         }
 
-        String entityType = entity.getType().toString().toLowerCase();
-        if (!config.getTypes().isEmpty() && !config.getTypes().contains(entityType)) {
+        String detailType = event.getEntity() == null ? sourceKey : event.getEntity().getType().toString().toLowerCase();
+
+        // 不允许破坏方块：只清空方块列表，不取消事件，伤害照常结算
+        if (!config.isBreakBlocks()) {
+            event.blockList().clear();
+        }
+
+        // 三个开关全部关闭才整体取消爆炸
+        boolean blocked = false;
+        if (config.isFullyProtected()) {
+            event.setCancelled(true);
+            blocked = true;
+        }
+
+        manager.logExplosion(sourceKey, detailType, blocked,
+                String.format("世界: %s, 位置: %s, 威力: %.2f, 方块数量: %d",
+                        worldName, event.getLocation(), event.getYield(), event.blockList().size()));
+    }
+
+    /**
+     * 处理方块爆炸事件（TNT 方块、床、重生锚等）
+     */
+    @EventHandler(priority = EventPriority.HIGHEST)
+    public void onBlockExplode(BlockExplodeEvent event) {
+        if (!manager.isEnabled()) {
             return;
         }
 
-        applyExplosionConfig(event, config, "entity-explosion", entityType);
-    }
+        String worldName = getWorldName(event.getBlock().getLocation());
+        String sourceKey = identifyBlockSource(event.getBlock());
 
-    /**
-     * 处理TNT爆炸
-     */
-    private void handleTNTExplosion(EntityExplodeEvent event) {
-        ExplosionProtectionManager.ExplosionConfig config = explosionManager.getTntExplosionConfig();
-        if (config.isEnabled()) {
-            applyExplosionConfig(event, config, "tnt-explosion", "tnt");
+        ExplosionProtectionManager.SourceConfig config = manager.getSource(worldName, sourceKey);
+        if (!config.isEnabled()) {
+            return;
         }
-    }
 
-    /**
-     * 处理TNT方块爆炸
-     */
-    private void handleTNTBlockExplosion(BlockExplodeEvent event) {
-        ExplosionProtectionManager.ExplosionConfig config = explosionManager.getTntExplosionConfig();
-        if (config.isEnabled()) {
-            applyBlockExplosionConfig(event, config, "tnt-explosion", "tnt-block");
-        }
-    }
-
-    /**
-     * 处理末影水晶爆炸
-     */
-    private void handleEndCrystalExplosion(EntityExplodeEvent event) {
-        ExplosionProtectionManager.ExplosionConfig config = explosionManager.getEndCrystalExplosionConfig();
-        if (config.isEnabled()) {
-            applyExplosionConfig(event, config, "end-crystal-explosion", "end-crystal");
-        }
-    }
-
-    /**
-     * 处理床爆炸
-     */
-    private void handleBedExplosion(EntityExplodeEvent event) {
-        ExplosionProtectionManager.ExplosionConfig config = explosionManager.getBedExplosionConfig();
-        if (config.isEnabled()) {
-            applyExplosionConfig(event, config, "bed-explosion", "bed");
-        }
-    }
-
-    /**
-     * 处理其他爆炸
-     */
-    private void handleOtherExplosion(EntityExplodeEvent event) {
-        ExplosionProtectionManager.ExplosionConfig config = explosionManager.getOtherExplosionConfig();
-        if (config.isEnabled()) {
-            applyExplosionConfig(event, config, "other-explosion", "other");
-        }
-    }
-
-    /**
-     * 处理其他方块爆炸
-     */
-    private void handleOtherBlockExplosion(BlockExplodeEvent event) {
-        ExplosionProtectionManager.ExplosionConfig config = explosionManager.getOtherExplosionConfig();
-        if (config.isEnabled()) {
-            applyBlockExplosionConfig(event, config, "other-explosion", "other-block");
-        }
-    }
-
-    /**
-     * 应用爆炸配置
-     */
-    private void applyExplosionConfig(EntityExplodeEvent event, ExplosionProtectionManager.ExplosionConfig config, String explosionType, String detailedType) {
-        boolean blocked = false;
-
-        // 如果不允许破坏地形，清空破坏的方块列表并取消事件
         if (!config.isBreakBlocks()) {
             event.blockList().clear();
+        }
+
+        boolean blocked = false;
+        if (config.isFullyProtected()) {
             event.setCancelled(true);
             blocked = true;
         }
 
-        // 如果不允许对实体造成伤害，取消事件
-        if (!config.isDamageEntities()) {
-            event.setCancelled(true);
-            blocked = true;
-        }
-
-        // 记录日志
-        explosionManager.logExplosion(explosionType, detailedType, blocked,
-                String.format("位置: %s, 威力: %.2f, 方块数量: %d",
-                        event.getLocation(), event.getYield(), event.blockList().size()));
+        manager.logExplosion(sourceKey, sourceKey + "-block", blocked,
+                String.format("世界: %s, 位置: %s, 方块数量: %d",
+                        worldName, event.getBlock().getLocation(), event.blockList().size()));
     }
 
     /**
-     * 应用方块爆炸配置
+     * 处理爆炸触发事件（用于调整爆炸威力与范围）
      */
-    private void applyBlockExplosionConfig(BlockExplodeEvent event, ExplosionProtectionManager.ExplosionConfig config, String explosionType, String detailedType) {
-        boolean blocked = false;
-
-        // 如果不允许破坏地形，清空破坏的方块列表
-        if (!config.isBreakBlocks()) {
-            event.blockList().clear();
-            blocked = true;
+    @EventHandler(priority = EventPriority.HIGH)
+    public void onExplosionPrime(ExplosionPrimeEvent event) {
+        if (!manager.isEnabled()) {
+            return;
         }
 
-        // 记录日志
-        explosionManager.logExplosion(explosionType, detailedType, blocked,
-                String.format("位置: %s, 方块数量: %d",
-                        event.getBlock().getLocation(), event.blockList().size()));
+        Entity entity = event.getEntity();
+        String sourceKey = identifyExplosionSource(entity, entity.getLocation());
+        if (sourceKey == null) {
+            return;
+        }
+
+        ExplosionProtectionManager.SourceConfig config =
+                manager.getSource(getWorldName(entity.getLocation()), sourceKey);
+        if (!config.isEnabled()) {
+            return;
+        }
+
+        // 完全受保护时才取消爆炸（否则会连带抹掉允许的伤害）
+        if (config.isFullyProtected()) {
+            event.setCancelled(true);
+            manager.logExplosion(sourceKey, "explosion-prime", true,
+                    String.format("世界: %s, 位置: %s, 半径: %.2f",
+                            getWorldName(entity.getLocation()), entity.getLocation(), event.getRadius()));
+            return;
+        }
+
+        // 调整爆炸威力
+        if (config.getPowerMultiplier() != 1.0) {
+            event.setRadius((float) (event.getRadius() * config.getPowerMultiplier()));
+        }
+
+        // 限制爆炸范围
+        if (config.getMaxRadius() > 0 && event.getRadius() > config.getMaxRadius()) {
+            event.setRadius((float) config.getMaxRadius());
+        }
+
+        event.setFire(false);
+    }
+
+    /**
+     * 处理实体爆炸造成的伤害（苦力怕、TNT 实体等）
+     */
+    @EventHandler(priority = EventPriority.HIGHEST)
+    public void onEntityDamageByEntity(EntityDamageByEntityEvent event) {
+        if (!manager.isEnabled() || event.getCause() != EntityDamageEvent.DamageCause.ENTITY_EXPLOSION) {
+            return;
+        }
+
+        String sourceKey = identifyExplosionSource(event.getDamager(), null);
+        if (sourceKey == null) {
+            return;
+        }
+        handleExplosionDamage(event, event.getEntity(), sourceKey);
+    }
+
+    /**
+     * 处理方块爆炸造成的伤害（床、重生锚等）
+     */
+    @EventHandler(priority = EventPriority.HIGHEST)
+    public void onEntityDamageByBlock(EntityDamageByBlockEvent event) {
+        if (!manager.isEnabled() || event.getCause() != EntityDamageEvent.DamageCause.BLOCK_EXPLOSION) {
+            return;
+        }
+
+        Block damager = event.getDamager();
+        String sourceKey = damager == null ? "other" : identifyBlockSource(damager);
+        handleExplosionDamage(event, event.getEntity(), sourceKey);
+    }
+
+    /**
+     * 按来源配置拦截爆炸伤害：玩家看 damage-players，其他生物看 damage-entities
+     */
+    private void handleExplosionDamage(EntityDamageEvent event, Entity victim, String sourceKey) {
+        String worldName = getWorldName(victim.getLocation());
+        ExplosionProtectionManager.SourceConfig config = manager.getSource(worldName, sourceKey);
+        if (!config.isEnabled()) {
+            return;
+        }
+
+        boolean isPlayer = victim instanceof Player;
+        boolean allowed = isPlayer ? config.isDamagePlayers() : config.isDamageEntities();
+        if (allowed) {
+            return;
+        }
+
+        event.setCancelled(true);
+        manager.logExplosion(sourceKey, isPlayer ? "damage-player" : "damage-entity", true,
+                String.format("世界: %s, 目标: %s, 位置: %s",
+                        worldName, victim.getType().toString().toLowerCase(), victim.getLocation()));
+    }
+
+    /**
+     * 处理实体直接改变方块（凋零、末影龙等破坏方块）
+     */
+    @EventHandler(priority = EventPriority.HIGHEST)
+    public void onEntityChangeBlock(EntityChangeBlockEvent event) {
+        if (!manager.isEnabled()) {
+            return;
+        }
+
+        Entity entity = event.getEntity();
+        Block block = event.getBlock();
+        ExplosionProtectionManager.EntityBlockBreakConfig config =
+                manager.getBlockBreakConfig(getWorldName(block.getLocation()));
+        String entityType = entity.getType().toString().toLowerCase();
+
+        if (!config.isEnabled()) {
+            return;
+        }
+
+        boolean isEntityAffected = config.isApplyToAllEntities()
+                || config.getTypes().contains(entityType);
+        if (!isEntityAffected) {
+            return;
+        }
+
+        boolean shouldAllowBreak = config.isAllowBreak();
+
+        // 方块类型限制
+        String blockType = block.getType().name().toLowerCase();
+        if (!shouldAllowBreak && !config.getAllowedBlocks().isEmpty()
+                && config.getAllowedBlocks().contains(blockType)) {
+            shouldAllowBreak = true;
+        }
+        if (config.getBlockedBlocks().contains(blockType)) {
+            shouldAllowBreak = false;
+        }
+
+        if (!shouldAllowBreak) {
+            event.setCancelled(true);
+            manager.logExplosion("entity-block-break", entityType, true,
+                    String.format("世界: %s, 位置: %s, 方块类型: %s, 实体类型: %s",
+                            getWorldName(block.getLocation()), block.getLocation(), blockType, entityType));
+        }
+    }
+
+    /**
+     * 处理无玩家参与的方块破坏事件（如末影龙撞击破坏方块）
+     */
+    @EventHandler(priority = EventPriority.HIGHEST)
+    public void onBlockBreak(BlockBreakEvent event) {
+        if (!manager.isEnabled() || event.getPlayer() != null) {
+            return;
+        }
+
+        ExplosionProtectionManager.EntityBlockBreakConfig config =
+                manager.getBlockBreakConfig(getWorldName(event.getBlock().getLocation()));
+        if (config.isEnabled() && config.isApplyToAllEntities() && !config.isAllowBreak()) {
+            event.setCancelled(true);
+            manager.logExplosion("block-break-no-player", "unknown", true,
+                    String.format("世界: %s, 位置: %s, 方块类型: %s",
+                            getWorldName(event.getBlock().getLocation()),
+                            event.getBlock().getLocation(),
+                            event.getBlock().getType().name().toLowerCase()));
+        }
+    }
+
+    /**
+     * 识别爆炸来源（实体）
+     */
+    private String identifyExplosionSource(Entity entity, Location fallback) {
+        if (entity instanceof Creeper) {
+            return "creeper";
+        }
+        if (entity instanceof Wither) {
+            return "wither";
+        }
+        if (entity instanceof WitherSkull) {
+            return "wither";
+        }
+        if (entity instanceof EnderDragon) {
+            return "ender-dragon";
+        }
+        if (entity instanceof DragonFireball) {
+            return "ender-dragon";
+        }
+        if (entity instanceof LargeFireball) {
+            return "ghast-fireball";
+        }
+        if (entity instanceof SmallFireball) {
+            return "blaze-fireball";
+        }
+        if (entity instanceof TNTPrimed || entity.getType().name().equals("TNT_MINECART")) {
+            return "tnt";
+        }
+        if (entity instanceof EnderCrystal) {
+            return "end-crystal";
+        }
+        if (entity == null) {
+            // 床/重生锚等以方块形式爆炸的事件，从位置推断来源
+            if (fallback != null && fallback.getWorld() != null) {
+                return identifyBlockSource(fallback.getBlock());
+            }
+            return null;
+        }
+        // 风弹、风弹（1.20.5+），按类型名匹配以兼容旧版本API
+        String name = entity.getType().name();
+        if (name.equals("WIND") || name.equals("WIND_CHARGE")) {
+            return "wind";
+        }
+        return "other";
+    }
+
+    /**
+     * 识别爆炸来源（方块）
+     */
+    private String identifyBlockSource(Block block) {
+        String name = block.getType().name();
+        if (name.equals("TNT") || name.equals("TNT_MINECART")) {
+            return "tnt";
+        }
+        if (name.equals("RESPAWN_ANCHOR")) {
+            return "respawn-anchor";
+        }
+        if (name.endsWith("_BED")) {
+            return "bed";
+        }
+        return "other";
+    }
+
+    private String getWorldName(Location location) {
+        return location.getWorld() != null ? location.getWorld().getName() : "default";
     }
 }

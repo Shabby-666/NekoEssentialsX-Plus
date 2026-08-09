@@ -3,6 +3,7 @@ package com.nekoessentialsx.gui;
 import com.nekoessentialsx.NekoEssentialX;
 import com.nekoessentialsx.economy.EconomyManager;
 import com.nekoessentialsx.titles.TitleManager;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -23,8 +24,11 @@ public class ChatInputListener implements Listener {
         WAITING_FOR_TITLE_NAME,
         WAITING_FOR_ADMIN_TITLE_INFO,
         WAITING_FOR_ADMIN_EDIT_TITLE_INFO,
-        WAITING_FOR_CURRENCY_NAME
+        WAITING_FOR_CURRENCY_NAME,
+        WAITING_FOR_ECONOMY_AMOUNT
     }
+
+    private final Map<String, String> pendingEconomyOps = new HashMap<>();
 
     public ChatInputListener(NekoEssentialX plugin, GUIManager guiManager) {
         this.plugin = plugin;
@@ -59,6 +63,9 @@ public class ChatInputListener implements Listener {
                 break;
             case WAITING_FOR_CURRENCY_NAME:
                 handleCurrencyNameInput(player, input);
+                break;
+            case WAITING_FOR_ECONOMY_AMOUNT:
+                handleEconomyAmountInput(player, input);
                 break;
         }
     }
@@ -297,9 +304,108 @@ public class ChatInputListener implements Listener {
 
     public void clearPlayerInputState(Player player) {
         playerInputStates.remove(player);
+        pendingEconomyOps.remove(player.getName().toLowerCase());
     }
 
     public boolean hasPlayerInputState(Player player) {
         return playerInputStates.containsKey(player);
+    }
+
+    public void setPendingEconomyOperation(Player player, String opType, String targetName) {
+        pendingEconomyOps.put(player.getName().toLowerCase(), opType + ":" + targetName.toLowerCase());
+        playerInputStates.put(player, InputState.WAITING_FOR_ECONOMY_AMOUNT);
+    }
+
+    private void handleEconomyAmountInput(Player player, String input) {
+        if (input.equalsIgnoreCase("cancel")) {
+            player.sendMessage(ChatColor.YELLOW + "操作已取消！");
+            plugin.getServer().getScheduler().runTask(plugin, () -> guiManager.openEconomyMenu(player));
+            return;
+        }
+
+        String opKey = pendingEconomyOps.remove(player.getName().toLowerCase());
+        if (opKey == null) {
+            player.sendMessage(ChatColor.RED + "操作状态丢失，请重试！");
+            return;
+        }
+
+        String[] parts = opKey.split(":", 2);
+        String opType = parts[0];
+        String targetName = parts[1];
+
+        double amount;
+        try {
+            amount = Double.parseDouble(input.trim());
+            if (amount <= 0) {
+                throw new NumberFormatException();
+            }
+        } catch (NumberFormatException e) {
+            player.sendMessage(ChatColor.RED + "请输入有效的正数金额！");
+            player.sendMessage(ChatColor.YELLOW + "输入 'cancel' 取消操作");
+            pendingEconomyOps.put(player.getName().toLowerCase(), opKey);
+            playerInputStates.put(player, InputState.WAITING_FOR_ECONOMY_AMOUNT);
+            return;
+        }
+
+        Player target = Bukkit.getPlayerExact(targetName);
+        if (target == null) {
+            player.sendMessage(ChatColor.RED + "玩家 " + targetName + " 不在线！");
+            plugin.getServer().getScheduler().runTask(plugin, () -> guiManager.openEconomyMenu(player));
+            return;
+        }
+
+        boolean success = false;
+        switch (opType) {
+            case "deposit": {
+                success = economyManager.depositPlayer(target, amount);
+                if (success) {
+                    player.sendMessage(ChatColor.GREEN + "已为 " + ChatColor.AQUA + target.getName()
+                            + ChatColor.GREEN + " 充值 " + ChatColor.GOLD + economyManager.format(amount));
+                    target.sendMessage(ChatColor.GREEN + "管理员为你充值了 " + ChatColor.GOLD + economyManager.format(amount));
+                }
+                break;
+            }
+            case "withdraw": {
+                success = economyManager.withdrawPlayer(target, amount);
+                if (success) {
+                    player.sendMessage(ChatColor.GREEN + "已从 " + ChatColor.AQUA + target.getName()
+                            + ChatColor.GREEN + " 扣款 " + ChatColor.GOLD + economyManager.format(amount));
+                    target.sendMessage(ChatColor.RED + "管理员从你的账户扣款 " + ChatColor.GOLD + economyManager.format(amount));
+                }
+                break;
+            }
+            case "setbalance": {
+                double current = economyManager.getBalance(target);
+                double diff = amount - current;
+                if (diff > 0) {
+                    success = economyManager.depositPlayer(target, diff);
+                } else if (diff < 0) {
+                    success = economyManager.withdrawPlayer(target, -diff);
+                } else {
+                    success = true;
+                }
+                if (success) {
+                    player.sendMessage(ChatColor.GREEN + "已将 " + ChatColor.AQUA + target.getName()
+                            + ChatColor.GREEN + " 的余额设置为 " + ChatColor.GOLD + economyManager.format(amount));
+                }
+                break;
+            }
+            case "transfer": {
+                success = economyManager.transfer(player, target, amount);
+                if (success) {
+                    player.sendMessage(ChatColor.GREEN + "已向 " + ChatColor.AQUA + target.getName()
+                            + ChatColor.GREEN + " 转账 " + ChatColor.GOLD + economyManager.format(amount));
+                    target.sendMessage(ChatColor.GREEN + "收到来自 " + ChatColor.AQUA + player.getName()
+                            + ChatColor.GREEN + " 的转账 " + ChatColor.GOLD + economyManager.format(amount));
+                }
+                break;
+            }
+        }
+
+        if (!success) {
+            player.sendMessage(ChatColor.RED + "操作失败！可能余额不足或参数错误。");
+        }
+
+        plugin.getServer().getScheduler().runTask(plugin, () -> guiManager.openEconomyMenu(player));
     }
 }

@@ -785,10 +785,11 @@ public class ChestGUIManager {
         
         // 转账
         gui.setItem(12, ChestGUI.createItem(Material.GOLD_INGOT, "§6§l转账",
-            List.of("§7转账给其他玩家", "§7点击选择玩家"), "§6"),
+            List.of("§7转账给其他玩家", "§7点击选择玩家并输入金额"), "§6"),
             (p, click) -> openPlayerSelector(p, "转账", (target, amount) -> {
                 p.closeInventory();
-                p.sendMessage("§a要转账的话，用指令 §e/money pay " + target.getName() + " <金额> §a 的说~喵~");
+                p.sendMessage("§a请在聊天框中输入转账金额（输入 cancel 取消）：");
+                plugin.getGuiManager().getChatInputListener().setPendingEconomyOperation(p, "transfer", target.getName());
             }));
         
         // 查看其他玩家余额
@@ -832,34 +833,38 @@ public class ChestGUIManager {
         
         // 充值
         gui.setItem(10, ChestGUI.createItem(Material.GREEN_CONCRETE, "§a§l充值",
-            List.of("§7为玩家充值"), "§a"),
-            (p, click) -> {
+            List.of("§7为玩家充值", "§7点击选择玩家并输入金额"), "§a"),
+            (p, click) -> openPlayerSelector(p, "充值", (target, amount) -> {
                 p.closeInventory();
-                p.sendMessage("§a要充值的话，用指令 §e/money give <玩家> <金额> §a 的说~喵~");
-            });
+                p.sendMessage("§a请在聊天框中输入充值金额（输入 cancel 取消）：");
+                plugin.getGuiManager().getChatInputListener().setPendingEconomyOperation(p, "deposit", target.getName());
+            }));
         
         // 扣款
         gui.setItem(12, ChestGUI.createItem(Material.RED_CONCRETE, "§c§l扣款",
-            List.of("§7从玩家账户扣款"), "§c"),
-            (p, click) -> {
+            List.of("§7从玩家账户扣款", "§7点击选择玩家并输入金额"), "§c"),
+            (p, click) -> openPlayerSelector(p, "扣款", (target, amount) -> {
                 p.closeInventory();
-                p.sendMessage("§a要扣款的话，用指令 §e/money take <玩家> <金额> §a 的说~喵~");
-            });
+                p.sendMessage("§a请在聊天框中输入扣款金额（输入 cancel 取消）：");
+                plugin.getGuiManager().getChatInputListener().setPendingEconomyOperation(p, "withdraw", target.getName());
+            }));
         
         // 设置余额
         gui.setItem(14, ChestGUI.createItem(Material.YELLOW_CONCRETE, "§e§l设置余额",
-            List.of("§7直接设置玩家余额"), "§e"),
-            (p, click) -> {
+            List.of("§7直接设置玩家余额", "§7点击选择玩家并输入目标余额"), "§e"),
+            (p, click) -> openPlayerSelector(p, "设置余额", (target, amount) -> {
                 p.closeInventory();
-                p.sendMessage("§a要设置余额的话，用指令 §e/money set <玩家> <金额> §a 的说~喵~");
-            });
+                p.sendMessage("§a请在聊天框中输入目标余额（输入 cancel 取消）：");
+                plugin.getGuiManager().getChatInputListener().setPendingEconomyOperation(p, "setbalance", target.getName());
+            }));
         
         // 更改货币名称
         gui.setItem(16, ChestGUI.createItem(Material.NAME_TAG, "§d§l更改货币名称",
             List.of("§7更改游戏中的货币名称", "§7当前: §e" + economyManager.getCurrencyName()), "§d"),
             (p, click) -> {
                 p.closeInventory();
-                p.sendMessage("§a要改货币名称的话，用指令 §e/money name <新名称> §a 的说~喵~");
+                p.sendMessage("§a请在聊天框中输入新的货币名称（输入 cancel 取消）：");
+                plugin.getGuiManager().getChatInputListener().setPlayerInputState(p, ChatInputListener.InputState.WAITING_FOR_CURRENCY_NAME);
             });
         
         // 添加导航栏

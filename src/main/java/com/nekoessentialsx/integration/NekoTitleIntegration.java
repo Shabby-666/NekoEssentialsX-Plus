@@ -50,10 +50,12 @@ public class NekoTitleIntegration implements Listener {
             plugin.getLogger().warning("同步 NextNeko 猫娘头衔失败: " + e.getMessage());
         }
 
-        // 为在线的猫娘补发头衔
+        // 为在线的猫娘补发头衔，并清理非猫娘玩家的残留头衔
         for (Player player : Bukkit.getOnlinePlayers()) {
             if (bridge.isNeko(player)) {
                 grantNekoTitle(player);
+            } else {
+                revokeNekoTitle(player);
             }
         }
     }
@@ -76,6 +78,46 @@ public class NekoTitleIntegration implements Listener {
         }
     }
 
+    /**
+     * 撤销玩家（含离线，按名称）的猫娘头衔
+     */
+    public void revokeNekoTitle(String playerName) {
+        if (playerName == null || playerName.isEmpty() || !bridge.isInstalled()) {
+            return;
+        }
+        Player player = plugin.getServer().getPlayerExact(playerName);
+        if (player != null) {
+            revokeNekoTitle(player);
+            return;
+        }
+        DatabaseManager db = plugin.getDatabaseManager();
+        if (db != null) {
+            db.removeTitleFromInventory(playerName, NEKO_TITLE_ID);
+        }
+    }
+
+    /**
+     * 撤销玩家的猫娘头衔（若正佩戴则先卸下）
+     */
+    public void revokeNekoTitle(Player player) {
+        if (player == null || !bridge.isInstalled()) {
+            return;
+        }
+        TitleManager titleManager = plugin.getTitleManager();
+        DatabaseManager db = plugin.getDatabaseManager();
+        if (titleManager == null || db == null) {
+            return;
+        }
+        String playerId = player.getName();
+        if (!db.hasTitle(playerId, NEKO_TITLE_ID)) {
+            return;
+        }
+        if (NEKO_TITLE_ID.equals(titleManager.getPlayerTitle(playerId))) {
+            titleManager.updatePlayerTitle(player, null);
+        }
+        db.removeTitleFromInventory(playerId, NEKO_TITLE_ID);
+    }
+
     public void onEnable() {
         plugin.getServer().getPluginManager().registerEvents(this, plugin);
         sync();
@@ -89,6 +131,8 @@ public class NekoTitleIntegration implements Listener {
         Player player = event.getPlayer();
         if (bridge.isNeko(player)) {
             grantNekoTitle(player);
+        } else {
+            revokeNekoTitle(player);
         }
     }
 }

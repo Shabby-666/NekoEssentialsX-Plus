@@ -1610,11 +1610,13 @@ public class ChestGUIManager {
                 boolean newStatus = !nextNekoBridge.isNeko(target.getName());
                 nextNekoBridge.setNekoDirect(target.getName(), newStatus);
                 p.sendMessage("§a呜呼~已将玩家 §e" + target.getName() + " §a设置" + (newStatus ? "为猫娘" : "为非猫娘") + "的喵~");
-                if (newStatus) {
-                    NekoTitleIntegration titleIntegration = plugin.getNekoTitleIntegration();
-                    if (titleIntegration != null) {
+                NekoTitleIntegration titleIntegration = plugin.getNekoTitleIntegration();
+                if (titleIntegration != null) {
+                    if (newStatus) {
                         titleIntegration.grantNekoTitle(target);
                         target.sendMessage("§d§l你获得了【猫娘】头衔，可在 §e/mainmenu §d的 头衔系统 中佩戴或卸下喵~");
+                    } else {
+                        titleIntegration.revokeNekoTitle(target);
                     }
                 }
             }));
@@ -1672,6 +1674,10 @@ public class ChestGUIManager {
             (p, click) -> {
                 nextNekoBridge.setNekoDirect(nekoName, false);
                 p.sendMessage("§c呜...已取消 §e" + nekoName + " §c的猫娘身份喵~");
+                NekoTitleIntegration titleIntegration = plugin.getNekoTitleIntegration();
+                if (titleIntegration != null) {
+                    titleIntegration.revokeNekoTitle(nekoName);
+                }
                 p.closeInventory();
             });
 

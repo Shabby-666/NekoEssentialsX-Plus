@@ -134,13 +134,13 @@ public class ChestGUIManager {
             (p, click) -> openTPMenu(p));
         
         // 玩家列表
-        gui.setItem(32, ChestGUI.createCategoryIcon(Material.PLAYER_HEAD, "在线玩家", 
+        gui.setItem(31, ChestGUI.createCategoryIcon(Material.PLAYER_HEAD, "在线玩家",
             "看看现在都有谁在线的说~", "§a", true),
             (p, click) -> openPlayerList(p, 1));
 
         // 新手礼包
         if (plugin.getNewbieGiftManager().canClaimGift(player.getName())) {
-            gui.setItem(36, ChestGUI.createCategoryIcon(Material.CHEST, "新手礼包", 
+            gui.setItem(37, ChestGUI.createCategoryIcon(Material.CHEST, "新手礼包",
                 "来领取你的新手大礼包的说~喵~", "§5", true),
                 (p, click) -> {
                     p.closeInventory();
@@ -149,7 +149,7 @@ public class ChestGUIManager {
         }
         
         // 每日签到
-        gui.setItem(38, ChestGUI.createCategoryIcon(Material.CLOCK, "每日签到", 
+        gui.setItem(39, ChestGUI.createCategoryIcon(Material.CLOCK, "每日签到",
             "点击领取每日签到奖励的说~", "§3", true),
             (p, click) -> {
                 p.closeInventory();
@@ -157,7 +157,7 @@ public class ChestGUIManager {
             });
         
         // 插件信息
-        gui.setItem(40, ChestGUI.createCategoryIcon(Material.BOOK, "插件信息", 
+        gui.setItem(41, ChestGUI.createCategoryIcon(Material.BOOK, "插件信息",
             "查看插件版本和重载配置~", "§f", player.hasPermission("nekoessentialsx.admin")),
             (p, click) -> {
                 if (p.hasPermission("nekoessentialsx.admin")) {
@@ -168,7 +168,7 @@ public class ChestGUIManager {
             });
         
         // AFK状态
-        gui.setItem(42, ChestGUI.createCategoryIcon(Material.LEAD, "AFK状态", 
+        gui.setItem(43, ChestGUI.createCategoryIcon(Material.LEAD, "AFK状态",
             "切换你的AFK（离开）状态~", "§7", true),
             (p, click) -> {
                 p.closeInventory();
@@ -181,26 +181,26 @@ public class ChestGUIManager {
             
             // 猫娘专属技能管理（仅猫娘可见）
             if (isNeko) {
-                gui.setItem(18, ChestGUI.createCategoryIcon(Material.CAT_SPAWN_EGG, "猫娘专属技能", 
+                gui.setItem(19, ChestGUI.createCategoryIcon(Material.CAT_SPAWN_EGG, "猫娘专属技能",
                     "管理只属于你的猫娘专属技能开关~", "§d", true),
                     (p, click) -> openNekoSkillMenu(p));
             } else {
-                gui.setItem(18, ChestGUI.createCategoryIcon(Material.CAT_SPAWN_EGG, "猫娘专属技能", 
+                gui.setItem(19, ChestGUI.createCategoryIcon(Material.CAT_SPAWN_EGG, "猫娘专属技能",
                     "只有猫娘才能使用的技能管理~", "§8", false),
                     null);
             }
-            
+
             // 主人与猫娘管理（猫娘或管理员）
             boolean canManageOwner = isNeko || player.hasPermission("nextneko.admin")
                     || player.hasPermission("nekoessentialsx.admin");
-            gui.setItem(22, ChestGUI.createCategoryIcon(Material.NAME_TAG, "主人与猫娘管理", 
+            gui.setItem(22, ChestGUI.createCategoryIcon(Material.NAME_TAG, "主人与猫娘管理",
                 canManageOwner ? "查看和管理主人与猫娘的关系~" : "需要猫娘身份或管理员权限~", "§c", canManageOwner),
                 canManageOwner ? (p, click) -> openOwnerMenu(p) : null);
-            
+
             // NextNeko设置（管理员）
             boolean canSettings = player.hasPermission("nextneko.admin")
                     || player.hasPermission("nekoessentialsx.admin");
-            gui.setItem(24, ChestGUI.createCategoryIcon(Material.COMMAND_BLOCK, "NextNeko设置", 
+            gui.setItem(25, ChestGUI.createCategoryIcon(Material.COMMAND_BLOCK, "NextNeko设置",
                 canSettings ? "在UI中编辑NextNeko的配置文件设置~" : "需要管理员权限~", "§e", canSettings),
                 canSettings ? (p, click) -> openNextNekoSettingsMenu(p) : null);
             
@@ -977,9 +977,6 @@ public class ChestGUIManager {
     public void openPlayerSelector(Player player, String actionName, int page, PlayerSelectorCallback callback) {
         Collection<Player> onlinePlayers = new ArrayList<>((Collection<Player>) plugin.getServer().getOnlinePlayers());
         List<Player> playerList = new ArrayList<>(onlinePlayers);
-        
-        // 移除自己
-        playerList.remove(player);
         
         int itemsPerPage = 45;
         int totalPages = Math.max(1, (int) Math.ceil((double) playerList.size() / itemsPerPage));

@@ -104,32 +104,32 @@ public class ChestGUIManager {
         gui.fillEmpty(Material.GRAY_STAINED_GLASS_PANE, " ");
         
 // 家系统
-        gui.setItem(10, ChestGUI.createCategoryIcon(Material.RED_BED, "家系统", 
+        gui.setItem(9, ChestGUI.createCategoryIcon(Material.RED_BED, "家系统",
             "管理你的家，传送到已设置的家~", "§c", true),
             (p, click) -> openHomeMenu(p));
         
         // 传送点系统
-        gui.setItem(12, ChestGUI.createCategoryIcon(Material.ENDER_PEARL, "传送点", 
+        gui.setItem(11, ChestGUI.createCategoryIcon(Material.ENDER_PEARL, "传送点",
             "查看和传送到公共传送点~", "§9", true),
             (p, click) -> openWarpMenu(p, 1));
         
         // 工具包系统
-        gui.setItem(14, ChestGUI.createCategoryIcon(Material.CHEST, "工具包", 
+        gui.setItem(13, ChestGUI.createCategoryIcon(Material.CHEST, "工具包",
             "领取各种工具包奖励的说~", "§6", true),
             (p, click) -> openKitMenu(p, 1));
         
         // 头衔系统
-        gui.setItem(16, ChestGUI.createCategoryIcon(Material.NAME_TAG, "头衔系统", 
+        gui.setItem(15, ChestGUI.createCategoryIcon(Material.NAME_TAG, "头衔系统",
             "购买、装备和管理你的头衔~喵~", "§d", true),
             (p, click) -> openTitleMenu(p));
         
         // 经济系统
-        gui.setItem(28, ChestGUI.createCategoryIcon(Material.GOLD_INGOT, "经济系统", 
+        gui.setItem(27, ChestGUI.createCategoryIcon(Material.GOLD_INGOT, "经济系统",
             "查看余额、转账和管理经济~", "§e", true),
             (p, click) -> openEconomyMenu(p));
         
         // 传送系统
-        gui.setItem(30, ChestGUI.createCategoryIcon(Material.COMPASS, "传送系统", 
+        gui.setItem(29, ChestGUI.createCategoryIcon(Material.COMPASS, "传送系统",
             "发送和接受传送请求~呜哼哼", "§b", true),
             (p, click) -> openTPMenu(p));
         
@@ -140,7 +140,7 @@ public class ChestGUIManager {
 
         // 新手礼包
         if (plugin.getNewbieGiftManager().canClaimGift(player.getName())) {
-            gui.setItem(37, ChestGUI.createCategoryIcon(Material.CHEST, "新手礼包",
+            gui.setItem(33, ChestGUI.createCategoryIcon(Material.CHEST, "新手礼包",
                 "来领取你的新手大礼包的说~喵~", "§5", true),
                 (p, click) -> {
                     p.closeInventory();
@@ -149,7 +149,7 @@ public class ChestGUIManager {
         }
         
         // 每日签到
-        gui.setItem(39, ChestGUI.createCategoryIcon(Material.CLOCK, "每日签到",
+        gui.setItem(38, ChestGUI.createCategoryIcon(Material.CLOCK, "每日签到",
             "点击领取每日签到奖励的说~", "§3", true),
             (p, click) -> {
                 p.closeInventory();
@@ -157,7 +157,7 @@ public class ChestGUIManager {
             });
         
         // 插件信息
-        gui.setItem(41, ChestGUI.createCategoryIcon(Material.BOOK, "插件信息",
+        gui.setItem(40, ChestGUI.createCategoryIcon(Material.BOOK, "插件信息",
             "查看插件版本和重载配置~", "§f", player.hasPermission("nekoessentialsx.admin")),
             (p, click) -> {
                 if (p.hasPermission("nekoessentialsx.admin")) {
@@ -168,7 +168,7 @@ public class ChestGUIManager {
             });
         
         // AFK状态
-        gui.setItem(43, ChestGUI.createCategoryIcon(Material.LEAD, "AFK状态",
+        gui.setItem(42, ChestGUI.createCategoryIcon(Material.LEAD, "AFK状态",
             "切换你的AFK（离开）状态~", "§7", true),
             (p, click) -> {
                 p.closeInventory();
@@ -1754,20 +1754,20 @@ public class ChestGUIManager {
         // 填充背景
         gui.fillEmpty(Material.GRAY_STAINED_GLASS_PANE, " ");
 
-        addConfigToggle(gui, 10, Material.NAME_TAG, "neko-chat.enabled", "猫娘聊天");
-        addConfigToggle(gui, 11, Material.COOKED_BEEF, "meat-only.enabled", "只吃肉类");
-        addConfigToggle(gui, 12, Material.WHEAT_SEEDS, "cat-nip.enabled", "猫薄荷");
-        addConfigToggle(gui, 13, Material.IRON_SWORD, "claws.enabled", "猫爪");
-        addConfigToggle(gui, 14, Material.SKELETON_SKULL, "mob-targeting.enabled", "生物目标");
-        addConfigToggle(gui, 15, Material.LEATHER_CHESTPLATE, "armor-bonus.enabled", "护甲加成");
-        addConfigToggle(gui, 16, Material.WITHER_ROSE, "owner-death.feature.enabled", "同生共死");
-        addConfigToggle(gui, 20, Material.GOLDEN_APPLE, "health-skill.cooldown", "健康恢复冷却");
-        addConfigToggle(gui, 21, Material.CLOCK, "night-effects.enabled", "夜间效果");
-        addConfigToggle(gui, 22, Material.NETHERITE_SWORD, "passive-attack-boost.enabled", "被动攻击增强");
-        addConfigToggle(gui, 23, Material.SHIELD, "neko-damage-modification.enabled", "猫娘伤害调整");
-        addConfigToggle(gui, 24, Material.CREEPER_HEAD, "neko-mob-behavior.enabled", "猫娘生物行为");
-        addConfigToggle(gui, 25, Material.LADDER, "neko-climbing.enabled", "猫娘爬墙");
-        addConfigToggle(gui, 26, Material.STRING, "tail-pull.enabled", "尾巴拉扯");
+        addConfigToggle(gui, 9, Material.NAME_TAG, "neko-chat.enabled", "猫娘聊天");
+        addConfigToggle(gui, 10, Material.COOKED_BEEF, "meat-only.enabled", "只吃肉类");
+        addConfigToggle(gui, 11, Material.WHEAT_SEEDS, "cat-nip.enabled", "猫薄荷");
+        addConfigToggle(gui, 12, Material.IRON_SWORD, "claws.enabled", "猫爪");
+        addConfigToggle(gui, 13, Material.SKELETON_SKULL, "mob-targeting.enabled", "生物目标");
+        addConfigToggle(gui, 14, Material.LEATHER_CHESTPLATE, "armor-bonus.enabled", "护甲加成");
+        addConfigToggle(gui, 15, Material.WITHER_ROSE, "owner-death.feature.enabled", "同生共死");
+        addConfigToggle(gui, 19, Material.GOLDEN_APPLE, "health-skill.cooldown", "健康恢复冷却");
+        addConfigToggle(gui, 20, Material.CLOCK, "night-effects.enabled", "夜间效果");
+        addConfigToggle(gui, 21, Material.NETHERITE_SWORD, "passive-attack-boost.enabled", "被动攻击增强");
+        addConfigToggle(gui, 22, Material.SHIELD, "neko-damage-modification.enabled", "猫娘伤害调整");
+        addConfigToggle(gui, 23, Material.CREEPER_HEAD, "neko-mob-behavior.enabled", "猫娘生物行为");
+        addConfigToggle(gui, 24, Material.LADDER, "neko-climbing.enabled", "猫娘爬墙");
+        addConfigToggle(gui, 25, Material.STRING, "tail-pull.enabled", "尾巴拉扯");
 
         // 添加导航栏
         gui.addNavigationBar(false, false,

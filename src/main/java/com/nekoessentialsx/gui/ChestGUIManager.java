@@ -825,6 +825,10 @@ public class ChestGUIManager {
             player.sendMessage("§c呜...主人没有权限的说~喵~");
             return;
         }
+        if (economyManager == null) {
+            player.sendMessage("§c呜...经济管理器还没有加载好喵~");
+            return;
+        }
         
         ChestGUI gui = new ChestGUI(player, "§c§l经济管理 §7- 管理员功能", ChestGUI.SINGLE_CHEST_SIZE, GUI_ECONOMY_MENU);
         

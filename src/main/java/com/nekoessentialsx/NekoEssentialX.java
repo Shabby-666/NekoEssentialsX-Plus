@@ -353,7 +353,7 @@ public class NekoEssentialX extends JavaPlugin {
                 sender.sendMessage("§a呜呼~NekoEssentialsX+的配置重新加载好啦的说~喵~");
                 return true;
             } else if (args[0].equalsIgnoreCase("version")) {
-                sender.sendMessage("§aNekoEssentialsX+现在的版本是：1.0.0-beta 的说~喵~");
+                sender.sendMessage("§aNekoEssentialsX+现在的版本是：1.2.1-beta 的说~喵~");
                 return true;
             } else if (args[0].equalsIgnoreCase("claimgift")) {
                 // 处理领取新手礼包命令

@@ -34,6 +34,7 @@ public class NekoEssentialX extends JavaPlugin {
     private AFKManager afkManager;
     private KitManager kitManager;
     private WarpManager warpManager;
+    private com.nekoessentialsx.compat.EssentialsCompatManager essentialsCompatManager;
     private AntiExplosionModule antiExplosionModule;
     private NextNekoBridge nextNekoBridge;
     private NekoTitleIntegration nekoTitleIntegration;
@@ -106,6 +107,10 @@ public class NekoEssentialX extends JavaPlugin {
         
         // 初始化传送点管理器
         warpManager = new WarpManager(this);
+        
+        // 检测 EssentialsX 配置文件夹（兼容模式）
+        essentialsCompatManager = new com.nekoessentialsx.compat.EssentialsCompatManager(this);
+        essentialsCompatManager.checkCompat();
         
         // 初始化新的箱子GUI管理器（必须在所有依赖管理器之后创建）
         chestGUIManager = new ChestGUIManager(this);
@@ -306,7 +311,7 @@ public class NekoEssentialX extends JavaPlugin {
             }
             
             org.bukkit.entity.Player player = (org.bukkit.entity.Player) sender;
-            guiManager.openMainGUI(player);
+            chestGUIManager.openMainMenu(player);
             return true;
         });
         getCommand("titlegui").setTabCompleter((sender, command, alias, args) -> {
@@ -353,7 +358,7 @@ public class NekoEssentialX extends JavaPlugin {
                 sender.sendMessage("§a呜呼~NekoEssentialsX+的配置重新加载好啦的说~喵~");
                 return true;
             } else if (args[0].equalsIgnoreCase("version")) {
-                sender.sendMessage("§aNekoEssentialsX+现在的版本是：1.2.1-beta 的说~喵~");
+                sender.sendMessage("§aNekoEssentialsX+现在的版本是：1.2.2-beta 的说~喵~");
                 return true;
             } else if (args[0].equalsIgnoreCase("claimgift")) {
                 // 处理领取新手礼包命令
@@ -367,8 +372,8 @@ public class NekoEssentialX extends JavaPlugin {
                 
                 // 检查玩家是否可以领取新手礼包
                 if (this.getNewbieGiftManager().canClaimGift(playerName)) {
-                    // 打开新手礼包GUI
-                    this.getGuiManager().openNewbieGiftGUI(player);
+                    // 打开新主菜单GUI（礼包按钮在菜单内内联领取）
+                    chestGUIManager.openMainMenu(player);
                 } else {
                     player.sendMessage("§c呜...你已经领取过新手礼包了的说...喵~");
                 }
@@ -560,6 +565,11 @@ public class NekoEssentialX extends JavaPlugin {
         
         if (antiExplosionModule != null) {
             antiExplosionModule.reload();
+        }
+        
+        // 兼容模式：重新检测EssentialsX配置文件夹，重复导入不会覆盖已有数据
+        if (essentialsCompatManager != null) {
+            essentialsCompatManager.checkCompat();
         }
     }
 

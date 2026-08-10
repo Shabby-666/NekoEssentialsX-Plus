@@ -59,7 +59,7 @@ public class CatEconomyProvider implements Economy {
     @Override
     public EconomyResponse depositPlayer(OfflinePlayer player, double amount) {
         // 为OfflinePlayer添加余额
-        String playerId = player.getUniqueId().toString();
+        String playerId = player.getName();
         boolean success = economyManager.getPlugin().getDatabaseManager().addPlayerBalance(playerId, amount);
         if (success) {
             double newBalance = getBalance(player);
@@ -77,7 +77,7 @@ public class CatEconomyProvider implements Economy {
 
     @Override
     public EconomyResponse withdrawPlayer(OfflinePlayer player, double amount) {
-        String playerId = player.getUniqueId().toString();
+        String playerId = player.getName();
         boolean success = economyManager.getPlugin().getDatabaseManager().subtractPlayerBalance(playerId, amount);
         if (success) {
             double newBalance = getBalance(player);
@@ -196,7 +196,7 @@ public class CatEconomyProvider implements Economy {
 
     @Override
     public double getBalance(OfflinePlayer player) {
-        String playerId = player.getUniqueId().toString();
+        String playerId = player.getName();
         return economyManager.getPlugin().getDatabaseManager().getPlayerBalance(playerId);
     }
 

@@ -1062,6 +1062,67 @@ public class ChestGUIManager {
     }
     
     /**
+     * 打开自定义头衔创建确认GUI（新版箱子系统）
+     * @param player 玩家
+     * @param titleId 头衔ID
+     * @param titleName 头衔名称
+     */
+    public void openConfirmCreateCustomTitleGUI(Player player, String titleId, String titleName) {
+        // 再次确认ID未被占用，避免并发冲突
+        if (titleManager.getTitle(titleId) != null || databaseManager.getCustomTitle(titleId) != null) {
+            player.sendMessage("§c呜...头衔ID已经存在的说，请换一个ID重新创建吧喵~");
+            player.closeInventory();
+            plugin.getServer().getScheduler().runTask(plugin, () -> openTitleMenu(player));
+            return;
+        }
+
+        String prefix = "[" + titleName + "] ";
+        boolean isAdmin = player.hasPermission("nekoessentialsx.title.admin");
+        int cost = isAdmin ? 0 : CUSTOM_TITLE_COST;
+        String currencyName = economyManager != null ? economyManager.getCurrencyName() : "金币";
+
+        openConfirmGUI(player, "创建自定义头衔",
+            "创建头衔: " + titleId + " (" + titleName + ")" + (cost > 0 ? "  花费 " + cost + " " + currencyName : "（免费）"),
+            p -> {
+                // 确认创建
+                if (!isAdmin) {
+                    double balance = economyManager.getBalance(p);
+                    if (balance < cost) {
+                        p.sendMessage("§c呜...主人的余额不足啦！需要 " + cost + " " + currencyName + " 喵~");
+                        openTitleMenu(p);
+                        return;
+                    }
+                    if (!economyManager.withdrawPlayer(p, cost)) {
+                        p.sendMessage("§c呜...创建失败了的说，等一小会儿再试试吧喵~");
+                        openTitleMenu(p);
+                        return;
+                    }
+                }
+
+                // 保存自定义头衔
+                if (databaseManager.saveCustomTitle(titleId, p.getName(), titleName, prefix, "")) {
+                    // 添加到玩家仓库
+                    databaseManager.addTitleToInventory(p.getName(), titleId, true);
+
+                    // 发送成功消息
+                    p.sendMessage("§a呜呼~自定义头衔创建成功啦喵~");
+                    p.sendMessage("§a头衔ID: §b" + titleId);
+                    p.sendMessage("§a头衔名称: §b" + titleName);
+
+                    // 打开个人头衔界面（新版）
+                    openMyTitles(p, 1);
+                } else {
+                    p.sendMessage("§c呜...创建失败了的说，等一小会儿再试试吧喵~");
+                    openTitleMenu(p);
+                }
+            },
+            p -> {
+                p.sendMessage("§e呜...自定义头衔创建被取消啦，下次再来玩吧喵~");
+                openTitleMenu(p);
+            });
+    }
+    
+    /**
      * 打开玩家列表GUI
      * @param player 玩家
      * @param page 页码
@@ -1126,9 +1187,9 @@ public class ChestGUIManager {
         
         // 版本信息
         gui.setItem(10, ChestGUI.createItem(Material.BOOK, "§a§l查看版本",
-            List.of("§7当前版本: §e1.2.1-beta"), "§a"),
+            List.of("§7当前版本: §e1.2.2-beta"), "§a"),
             (p, click) -> {
-                p.sendMessage("§a呜呼~NekoEssentialsX+ 现在的版本是: §e1.2.1-beta 喵~");
+                p.sendMessage("§a呜呼~NekoEssentialsX+ 现在的版本是: §e1.2.2-beta 喵~");
             });
         
         // 重载配置

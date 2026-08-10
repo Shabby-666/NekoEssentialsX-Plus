@@ -75,7 +75,7 @@ public class ChatInputListener implements Listener {
         if (input.equalsIgnoreCase("cancel")) {
             player.sendMessage(ChatColor.YELLOW + "创建头衔操作已取消！");
             plugin.getServer().getScheduler().runTask(plugin, () -> {
-                plugin.getGuiManager().openMainGUI(player);
+                plugin.getChestGUIManager().openMainMenu(player);
             });
             return;
         }
@@ -123,9 +123,9 @@ public class ChatInputListener implements Listener {
         session.setData("titleId", titleId);
         session.setData("titleName", titleName);
 
-        // 直接打开确认创建的箱子GUI（无需再输入 confirm）
+        // 直接打开新版确认箱子GUI（无需再输入 confirm）
         plugin.getServer().getScheduler().runTask(plugin, () -> {
-            plugin.getGuiManager().openCreateTitleConfirmGUI(player, titleId, titleName);
+            plugin.getChestGUIManager().openConfirmCreateCustomTitleGUI(player, titleId, titleName);
         });
     }
 
@@ -178,7 +178,7 @@ public class ChatInputListener implements Listener {
         }
 
         // 调用TitleManager创建系统头衔
-        titleManager.createTitle(titleId, titleName, prefix, "", "nekoessentialx.titles." + titleId, 1, true);
+        titleManager.createTitle(titleId, titleName, prefix, "", "nekoessentialsx.titles." + titleId, 1, true);
 
         // 发送成功消息
         player.sendMessage(ChatColor.GREEN + "系统头衔创建成功！");
@@ -188,7 +188,7 @@ public class ChatInputListener implements Listener {
 
         // 使用主线程打开GUI，避免异步线程调用同步方法
         plugin.getServer().getScheduler().runTask(plugin, () -> {
-            guiManager.openAdminTitleManager(player, 1);
+            plugin.getChestGUIManager().openTitleAdminMenu(player, 1);
         });
     }
 
@@ -248,7 +248,7 @@ public class ChatInputListener implements Listener {
         }
 
         // 调用TitleManager编辑系统头衔
-        titleManager.editTitle(titleId, titleName, prefix, "", "nekoessentialx.titles." + titleId, 1, true);
+        titleManager.editTitle(titleId, titleName, prefix, "", "nekoessentialsx.titles." + titleId, 1, true);
 
         // 发送成功消息
         player.sendMessage(ChatColor.GREEN + "系统头衔编辑成功！");
@@ -258,7 +258,7 @@ public class ChatInputListener implements Listener {
 
         // 使用主线程打开GUI，避免异步线程调用同步方法
         plugin.getServer().getScheduler().runTask(plugin, () -> {
-            guiManager.openAdminTitleManager(player, 1);
+            plugin.getChestGUIManager().openTitleAdminMenu(player, 1);
         });
     }
 
@@ -298,7 +298,7 @@ public class ChatInputListener implements Listener {
 
         // 使用主线程打开GUI，避免异步线程调用同步方法
         plugin.getServer().getScheduler().runTask(plugin, () -> {
-            guiManager.openEconomyMenu(player);
+            plugin.getChestGUIManager().openEconomyMenu(player);
         });
     }
 
@@ -319,7 +319,7 @@ public class ChatInputListener implements Listener {
     private void handleEconomyAmountInput(Player player, String input) {
         if (input.equalsIgnoreCase("cancel")) {
             player.sendMessage(ChatColor.YELLOW + "操作已取消！");
-            plugin.getServer().getScheduler().runTask(plugin, () -> guiManager.openEconomyMenu(player));
+            plugin.getServer().getScheduler().runTask(plugin, () -> plugin.getChestGUIManager().openEconomyMenu(player));
             return;
         }
 
@@ -350,7 +350,7 @@ public class ChatInputListener implements Listener {
         Player target = Bukkit.getPlayerExact(targetName);
         if (target == null) {
             player.sendMessage(ChatColor.RED + "玩家 " + targetName + " 不在线！");
-            plugin.getServer().getScheduler().runTask(plugin, () -> guiManager.openEconomyMenu(player));
+            plugin.getServer().getScheduler().runTask(plugin, () -> plugin.getChestGUIManager().openEconomyMenu(player));
             return;
         }
 
@@ -406,6 +406,6 @@ public class ChatInputListener implements Listener {
             player.sendMessage(ChatColor.RED + "操作失败！可能余额不足或参数错误。");
         }
 
-        plugin.getServer().getScheduler().runTask(plugin, () -> guiManager.openEconomyMenu(player));
+        plugin.getServer().getScheduler().runTask(plugin, () -> plugin.getChestGUIManager().openEconomyMenu(player));
     }
 }

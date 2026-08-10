@@ -315,7 +315,7 @@ public class GUIManager {
         mainGUI.setItem(16, pluginItem);
         
         // 如果是管理员，添加管理员按钮
-        if (player.hasPermission("nekoessentialx.title.admin")) {
+        if (player.hasPermission("nekoessentialsx.title.admin")) {
             ItemStack adminItem = createNavigationItem(
                 Material.COMMAND_BLOCK, 
                 "§c管理员头衔管理", 
@@ -589,7 +589,7 @@ public class GUIManager {
      * 打开管理员头衔管理界面
      */
     public void openAdminTitleManager(Player player, int page) {
-        if (!player.hasPermission("nekoessentialx.title.admin")) {
+        if (!player.hasPermission("nekoessentialsx.title.admin")) {
             player.sendMessage("§c呜...主人没有权限用这个功能的说~喵~");
             return;
         }
@@ -690,12 +690,12 @@ public class GUIManager {
      * 处理管理员创建头衔
      */
     public void handleAdminCreateTitle(Player player, String titleId, String titleName, String prefix, int priority, boolean enabled) {
-        if (!player.hasPermission("nekoessentialx.title.admin")) {
+        if (!player.hasPermission("nekoessentialsx.title.admin")) {
             player.sendMessage("§c呜...主人没有权限用这个功能的说~喵~");
             return;
         }
         
-        titleManager.createTitle(titleId, titleName, prefix, "", "nekoessentialx.titles." + titleId, priority, enabled);
+        titleManager.createTitle(titleId, titleName, prefix, "", "nekoessentialsx.titles." + titleId, priority, enabled);
         player.sendMessage("§a呜呼~头衔创建成功啦喵~");
         player.sendMessage("§a头衔ID: §b" + titleId);
         player.sendMessage("§a头衔名称: §b" + titleName);
@@ -705,7 +705,7 @@ public class GUIManager {
      * 处理管理员删除头衔
      */
     public void handleAdminDeleteTitle(Player player, String titleId) {
-        if (!player.hasPermission("nekoessentialx.title.admin")) {
+        if (!player.hasPermission("nekoessentialsx.title.admin")) {
             player.sendMessage("§c呜...主人没有权限用这个功能的说~喵~");
             return;
         }
@@ -718,12 +718,12 @@ public class GUIManager {
      * 处理管理员编辑头衔
      */
     public void handleAdminEditTitle(Player player, String titleId, String titleName, String prefix, int priority, boolean enabled) {
-        if (!player.hasPermission("nekoessentialx.title.admin")) {
+        if (!player.hasPermission("nekoessentialsx.title.admin")) {
             player.sendMessage("§c呜...主人没有权限用这个功能的说~喵~");
             return;
         }
         
-        titleManager.editTitle(titleId, titleName, prefix, "", "nekoessentialx.titles." + titleId, priority, enabled);
+        titleManager.editTitle(titleId, titleName, prefix, "", "nekoessentialsx.titles." + titleId, priority, enabled);
         player.sendMessage("§a呜呼~头衔编辑成功啦喵~");
     }
 
@@ -759,7 +759,7 @@ public class GUIManager {
             lore.add("§7头衔ID: §b" + titleId);
             lore.add("§7头衔名称: §b" + titleName);
             lore.add("§7头衔前缀: §b[" + titleName + "] ");
-            lore.add("§7价格: " + (player.hasPermission("nekoessentialx.title.admin") ? "§a免费" : "§6" + CUSTOM_TITLE_COST + " " + economyManager.getCurrencyName()));
+            lore.add("§7价格: " + (player.hasPermission("nekoessentialsx.title.admin") ? "§a免费" : "§6" + CUSTOM_TITLE_COST + " " + economyManager.getCurrencyName()));
             lore.add("§a点击确认按钮创建");
             lore.add("§c点击取消按钮放弃");
             meta.setLore(lore);
@@ -816,7 +816,7 @@ public class GUIManager {
         String prefix = "[" + titleName + "] ";
         
         // 检查权限和余额
-        boolean isAdmin = player.hasPermission("nekoessentialx.title.admin");
+        boolean isAdmin = player.hasPermission("nekoessentialsx.title.admin");
         int cost = isAdmin ? 0 : CUSTOM_TITLE_COST;
         
         if (!isAdmin) {
@@ -944,7 +944,7 @@ public class GUIManager {
         economyMenu.setItem(16, viewOtherBalanceItem);
         
         // 创建管理员经济管理菜单按钮
-        if (player.hasPermission("nekoessentialx.economy.admin")) {
+        if (player.hasPermission("nekoessentialsx.economy.admin")) {
             ItemStack adminMenuItem = createNavigationItem(
                 Material.COMMAND_BLOCK, 
                 "§c管理员经济管理", 

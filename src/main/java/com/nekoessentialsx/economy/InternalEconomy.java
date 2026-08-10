@@ -20,21 +20,21 @@ public class InternalEconomy {
      * 获取玩家余额
      */
     public double getBalance(Player player) {
-        return plugin.getDatabaseManager().getPlayerBalance(player.getUniqueId().toString());
+        return plugin.getDatabaseManager().getPlayerBalance(player.getName());
     }
 
     /**
      * 给玩家充值
      */
     public boolean deposit(Player player, double amount) {
-        return plugin.getDatabaseManager().addPlayerBalance(player.getUniqueId().toString(), amount);
+        return plugin.getDatabaseManager().addPlayerBalance(player.getName(), amount);
     }
 
     /**
      * 从玩家账户扣款
      */
     public boolean withdraw(Player player, double amount) {
-        return plugin.getDatabaseManager().subtractPlayerBalance(player.getUniqueId().toString(), amount);
+        return plugin.getDatabaseManager().subtractPlayerBalance(player.getName(), amount);
     }
 
     /**

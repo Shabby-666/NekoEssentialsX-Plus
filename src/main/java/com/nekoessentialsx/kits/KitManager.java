@@ -232,6 +232,28 @@ public class KitManager {
     }
 
     /**
+     * 导入外部工具包（兼容模式用，已存在的工具包不会被覆盖）
+     * @param kitName 工具包名称
+     * @param items 物品字符串列表（Neko格式：MATERIAL:AMOUNT:附魔:等级）
+     * @param cooldown 冷却时间（秒）
+     * @param permission 所需权限节点，可为null
+     */
+    public void importKit(String kitName, List<String> items, long cooldown, String permission) {
+        if (kitsConfig.contains(kitName)) {
+            return;
+        }
+        
+        for (int i = 0; i < items.size(); i++) {
+            kitsConfig.set(kitName + ".items.item" + i, items.get(i));
+        }
+        kitsConfig.set(kitName + ".cooldown", cooldown);
+        if (permission != null && !permission.isEmpty()) {
+            kitsConfig.set(kitName + ".permission", permission);
+        }
+        saveKits();
+    }
+
+    /**
      * 重新加载工具包配置
      */
     public void reload() {

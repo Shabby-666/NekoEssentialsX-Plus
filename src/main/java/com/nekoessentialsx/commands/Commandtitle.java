@@ -19,8 +19,8 @@ public class Commandtitle implements CommandExecutor, TabCompleter {
     public Commandtitle(NekoEssentialX plugin) {
         this.plugin = plugin;
         this.titleManager = plugin.getTitleManager();
-        // 注册Tab补全器到title和etitle命令
-        plugin.getCommand("title").setTabCompleter(this);
+        // 注册Tab补全器到playertitle和etitle命令
+        plugin.getCommand("playertitle").setTabCompleter(this);
         plugin.getCommand("etitle").setTabCompleter(this);
     }
 
@@ -219,7 +219,7 @@ public class Commandtitle implements CommandExecutor, TabCompleter {
         }
 
         if (args.length < 2) {
-            String message = "§c呜...正确的用法是这样哦: /title set <头衔ID> 喵~";
+            String message = "§c呜...正确的用法是这样哦: /playertitle set <头衔ID> 喵~";
             Player player = (Player) sender;
             CatChatProcessor processor = CatChatProcessor.getInstance();
             if (processor != null) {
@@ -301,7 +301,7 @@ public class Commandtitle implements CommandExecutor, TabCompleter {
 
     private void titleInfo(CommandSender sender, String[] args) {
         if (args.length < 2) {
-            String message = "§c呜...正确的用法是这样哦: /title info <头衔ID> 喵~";
+            String message = "§c呜...正确的用法是这样哦: /playertitle info <头衔ID> 喵~";
             if (sender instanceof Player) {
                 CatChatProcessor processor = CatChatProcessor.getInstance();
                 if (processor != null) {
@@ -367,7 +367,7 @@ public class Commandtitle implements CommandExecutor, TabCompleter {
         }
 
         if (args.length < 3) {
-            String message = "§c呜...正确的用法是这样哦: /title give <玩家|@选择器> <头衔ID> 喵~";
+            String message = "§c呜...正确的用法是这样哦: /playertitle give <玩家|@选择器> <头衔ID> 喵~";
             if (sender instanceof Player) {
                 CatChatProcessor processor = CatChatProcessor.getInstance();
                 if (processor != null) {
@@ -442,7 +442,7 @@ public class Commandtitle implements CommandExecutor, TabCompleter {
         }
 
         if (args.length < 3) {
-            String message = "§c呜...正确的用法是这样哦: /title take <玩家|@选择器> <头衔ID> 喵~";
+            String message = "§c呜...正确的用法是这样哦: /playertitle take <玩家|@选择器> <头衔ID> 喵~";
             if (sender instanceof Player) {
                 CatChatProcessor processor = CatChatProcessor.getInstance();
                 if (processor != null) {
@@ -505,7 +505,7 @@ public class Commandtitle implements CommandExecutor, TabCompleter {
 
         if (args.length < 2) {
             if (!(sender instanceof Player)) {
-                sender.sendMessage("§c呜...正确的用法是这样哦: /title clear <玩家> 喵~");
+                sender.sendMessage("§c呜...正确的用法是这样哦: /playertitle clear <玩家> 喵~");
                 return;
             }
             Player target = (Player) sender;
@@ -583,7 +583,7 @@ public class Commandtitle implements CommandExecutor, TabCompleter {
         }
         
         if (args.length < 2) {
-            sender.sendMessage("§c呜...正确的用法是这样哦: /title admin <create/edit/delete/toggle> [参数] 喵~");
+            sender.sendMessage("§c呜...正确的用法是这样哦: /playertitle admin <create/edit/delete/toggle> [参数] 喵~");
             return;
         }
         
@@ -615,7 +615,7 @@ public class Commandtitle implements CommandExecutor, TabCompleter {
      */
     private void createTitle(CommandSender sender, String[] args) {
         if (args.length < 9) {
-            sender.sendMessage("§c用法: /title admin create <称号ID> <名称> <前缀> <后缀> <权限> <优先级> <是否启用(true/false)>喵~");
+            sender.sendMessage("§c用法: /playertitle admin create <称号ID> <名称> <前缀> <后缀> <权限> <优先级> <是否启用(true/false)>喵~");
             return;
         }
         
@@ -653,7 +653,7 @@ public class Commandtitle implements CommandExecutor, TabCompleter {
      */
     private void editTitle(CommandSender sender, String[] args) {
         if (args.length < 9) {
-            sender.sendMessage("§c用法: /title admin edit <称号ID> <名称> <前缀> <后缀> <权限> <优先级> <是否启用(true/false)>喵~");
+            sender.sendMessage("§c用法: /playertitle admin edit <称号ID> <名称> <前缀> <后缀> <权限> <优先级> <是否启用(true/false)>喵~");
             return;
         }
         
@@ -691,7 +691,7 @@ public class Commandtitle implements CommandExecutor, TabCompleter {
      */
     private void deleteTitle(CommandSender sender, String[] args) {
         if (args.length < 3) {
-            sender.sendMessage("§c用法: /title admin delete <称号ID>喵~");
+            sender.sendMessage("§c用法: /playertitle admin delete <称号ID>喵~");
             return;
         }
         
@@ -715,7 +715,7 @@ public class Commandtitle implements CommandExecutor, TabCompleter {
      */
     private void toggleTitle(CommandSender sender, String[] args) {
         if (args.length < 3) {
-            sender.sendMessage("§c用法: /title admin toggle <称号ID>喵~");
+            sender.sendMessage("§c用法: /playertitle admin toggle <称号ID>喵~");
             return;
         }
         

@@ -231,8 +231,8 @@ public class NekoEssentialX extends JavaPlugin {
         // 注册etitle命令执行器和Tab补全
         getCommand("etitle").setExecutor(titleCmd);
         getCommand("etitle").setTabCompleter(titleCmd);
-        getCommand("title").setExecutor(titleCmd);
-        getCommand("title").setTabCompleter(titleCmd);
+        getCommand("playertitle").setExecutor(titleCmd);
+        getCommand("playertitle").setTabCompleter(titleCmd);
         
         // 注册money命令执行器和Tab补全
         getCommand("money").setExecutor(moneyCmd);
@@ -311,7 +311,7 @@ public class NekoEssentialX extends JavaPlugin {
             }
             
             org.bukkit.entity.Player player = (org.bukkit.entity.Player) sender;
-            chestGUIManager.openMainMenu(player);
+            chestGUIManager.openTitleMenu(player);
             return true;
         });
         getCommand("titlegui").setTabCompleter((sender, command, alias, args) -> {
@@ -358,7 +358,7 @@ public class NekoEssentialX extends JavaPlugin {
                 sender.sendMessage("§a呜呼~NekoEssentialsX+的配置重新加载好啦的说~喵~");
                 return true;
             } else if (args[0].equalsIgnoreCase("version")) {
-                sender.sendMessage("§aNekoEssentialsX+现在的版本是：1.2.2-beta 的说~喵~");
+                sender.sendMessage("§aNekoEssentialsX+现在的版本是：1.3.2-beta 的说~喵~");
                 return true;
             } else if (args[0].equalsIgnoreCase("claimgift")) {
                 // 处理领取新手礼包命令
@@ -372,8 +372,8 @@ public class NekoEssentialX extends JavaPlugin {
                 
                 // 检查玩家是否可以领取新手礼包
                 if (this.getNewbieGiftManager().canClaimGift(playerName)) {
-                    // 打开新主菜单GUI（礼包按钮在菜单内内联领取）
-                    chestGUIManager.openMainMenu(player);
+                    // 直接领取新手礼包
+                    this.getNewbieGiftManager().handleGiftClaim(player);
                 } else {
                     player.sendMessage("§c呜...你已经领取过新手礼包了的说...喵~");
                 }

@@ -741,7 +741,7 @@ public class ChestGUIManager {
                 List.of("§7点击创建一个新的系统头衔"), "§a"),
                 (p, click) -> {
                     p.closeInventory();
-                    p.sendMessage("§a要创建新头衔的话，用指令 §e/title admin create §a 的说~喵~");
+                    p.sendMessage("§a要创建新头衔的话，用指令 §e/playertitle admin create §a 的说~喵~");
                 });
         }
         
@@ -1187,9 +1187,9 @@ public class ChestGUIManager {
         
         // 版本信息
         gui.setItem(10, ChestGUI.createItem(Material.BOOK, "§a§l查看版本",
-            List.of("§7当前版本: §e1.2.2-beta"), "§a"),
+            List.of("§7当前版本: §e1.3.2-beta"), "§a"),
             (p, click) -> {
-                p.sendMessage("§a呜呼~NekoEssentialsX+ 现在的版本是: §e1.2.2-beta 喵~");
+                p.sendMessage("§a呜呼~NekoEssentialsX+ 现在的版本是: §e1.3.2-beta 喵~");
             });
         
         // 重载配置

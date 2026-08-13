@@ -175,7 +175,7 @@ public class ExplosionProtectionManager {
         if (worldName == null || worldName.equals("default")) {
             return defaultProfile;
         }
-        return worldProfiles.computeIfAbsent(worldName, k -> new ProfileConfig());
+        return worldProfiles.computeIfAbsent(worldName, k -> loadProfile(null, defaultProfile));
     }
 
     /**

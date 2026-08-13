@@ -2,6 +2,7 @@ package com.nekoessentialsx.antiexplosion.gui;
 
 import com.nekoessentialsx.antiexplosion.AntiExplosionModule;
 import com.nekoessentialsx.antiexplosion.manager.ExplosionProtectionManager;
+import com.nekoessentialsx.antiexplosion.multiverse.MultiverseBridge;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -522,6 +523,12 @@ public class ExplosionGUI implements Listener {
         for (World world : Bukkit.getWorlds()) {
             names.add(world.getName());
         }
+        // 追加 Multiverse 管理但尚未加载的世界（软依赖，未装则忽略）
+        for (String mvWorld : MultiverseBridge.getWorldNames()) {
+            if (!names.contains(mvWorld)) {
+                names.add(mvWorld);
+            }
+        }
         return names;
     }
 
@@ -529,6 +536,9 @@ public class ExplosionGUI implements Listener {
         ExplosionProtectionManager manager = module.getExplosionProtectionManager();
         boolean isDefault = worldName.equals("default");
         boolean configured = !isDefault && manager.getConfiguredWorlds().contains(worldName);
+
+        boolean isMV = MultiverseBridge.isMultiverseWorld(worldName);
+        boolean mvLoaded = isMV && MultiverseBridge.isWorldLoaded(worldName);
 
         Material material = Material.OAK_PLANKS;
         if (isDefault) {
@@ -541,13 +551,21 @@ public class ExplosionGUI implements Listener {
                     case THE_END -> Material.END_STONE;
                     default -> Material.GRASS_BLOCK;
                 };
+            } else {
+                material = Material.DIRT;
             }
         }
 
-        String name = (isDefault ? "§6§l默认维度" : "§b§l" + worldName);
-        return createItem(material, name,
-                "§7" + (configured ? "§a已单独配置" : "§7使用默认配置"),
-                "§e点击进入该维度的防爆设置");
+        String alias = isMV ? MultiverseBridge.getAliasOrName(worldName) : null;
+        String name = isDefault ? "§6§l默认维度"
+                : "§b§l" + worldName + (alias != null && !alias.equals(worldName) ? " §7(" + alias + ")" : "");
+        List<String> lore = new ArrayList<>();
+        lore.add("§7" + (configured ? "§a已单独配置" : "§7使用默认配置"));
+        if (isMV) {
+            lore.add("§d[Multiverse] " + (mvLoaded ? "§a已加载" : "§c未加载"));
+        }
+        lore.add("§e点击进入该维度的防爆设置");
+        return createItem(material, name, lore.toArray(new String[0]));
     }
 
     private ItemStack createSourceItem(SourceInfo info, ExplosionProtectionManager.SourceConfig config) {

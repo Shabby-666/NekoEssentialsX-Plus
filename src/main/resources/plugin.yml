@@ -1,12 +1,12 @@
 name: NekoEssentialsXPlus
-version: 1.3.2-beta
+version: 1.4.0-beta
 main: com.nekoessentialsx.NekoEssentialX
 api-version: 1.20
 load: POSTWORLD
 authors: [_Chinese_Player_]
 description: NekoEssentialsX+ 猫娘风格的Minecraft综合插件
 
-softdepend: [Vault, NextNeko]
+softdepend: [Vault, NextNeko, Multiverse-Core]
 
 commands:
   showdate: {}

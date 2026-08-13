@@ -4,6 +4,7 @@ import com.nekoessentialsx.NekoEssentialX;
 import com.nekoessentialsx.antiexplosion.gui.ExplosionGUI;
 import com.nekoessentialsx.antiexplosion.listener.ExplosionProtectionListener;
 import com.nekoessentialsx.antiexplosion.manager.ExplosionProtectionManager;
+import com.nekoessentialsx.antiexplosion.multiverse.MultiverseBridge;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -29,6 +30,9 @@ public class AntiExplosionModule {
      * 启用防爆模块：初始化管理器和 GUI，注册事件监听器。
      */
     public void onEnable() {
+        // 初始化 Multiverse-Core 桥接（软依赖）
+        MultiverseBridge.init();
+
         // 保存默认配置（若文件不存在）
         if (!new File(plugin.getDataFolder(), "antiexplosion.yml").exists()) {
             plugin.saveResource("antiexplosion.yml", false);

@@ -230,7 +230,7 @@ public class GUIListener implements Listener {
                 break;
             case PLUGIN_VERSION:
                 // 查看插件版本
-                player.sendMessage("§aNekoEssentialsX+ 当前版本：1.4.1-beta 的说~喵~");
+                player.sendMessage("§aNekoEssentialsX+ 当前版本：1.4.2-beta 的说~喵~");
                 guiManager.openPluginMenu(player);
                 break;
             case PLUGIN_RELOAD:

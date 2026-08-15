@@ -142,10 +142,18 @@ public class EconomyManager {
     }
 
     /**
-     * 格式化金额显示
+     * 格式化金额显示（保留小数，去除无意义尾零）
      */
     public String format(double amount) {
-        return (long) amount + " " + getCurrencyName();
+        return formatNumber(amount) + " " + getCurrencyName();
+    }
+
+    /**
+     * 格式化纯数字金额（保留小数，去除无意义尾零）
+     */
+    public String formatNumber(double amount) {
+        java.math.BigDecimal bd = java.math.BigDecimal.valueOf(amount).stripTrailingZeros();
+        return bd.toPlainString();
     }
 
     /**

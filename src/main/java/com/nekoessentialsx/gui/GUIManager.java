@@ -510,7 +510,7 @@ public class GUIManager {
         // 检查余额是否足够
         double balance = economyManager.getBalance(player);
         if (balance < TITLE_COST) {
-            player.sendMessage("§c呜...你的余额不足的说！需要 " + TITLE_COST + " " + economyManager.getCurrencyName() + "，你现在只有 " + (int) balance + " " + economyManager.getCurrencyName() + " 喵~");
+            player.sendMessage("§c呜...你的余额不足的说！需要 " + TITLE_COST + " " + economyManager.getCurrencyName() + "，你现在只有 " + (long) balance + " " + economyManager.getCurrencyName() + " 喵~");
             return;
         }
         
@@ -521,7 +521,7 @@ public class GUIManager {
             
             // 发送成功消息
             player.sendMessage("§a呜呼~买到啦！主人获得头衔: §b" + title.getName() + " §a 的说~喵~");
-            player.sendMessage("§a已扣除 " + TITLE_COST + " " + economyManager.getCurrencyName() + "，你当前余额: §6" + (int) (balance - TITLE_COST) + " " + economyManager.getCurrencyName());
+            player.sendMessage("§a已扣除 " + TITLE_COST + " " + economyManager.getCurrencyName() + "，你当前余额: §6" + (long) (balance - TITLE_COST) + " " + economyManager.getCurrencyName());
             
             // 重新打开商店界面，更新状态
             openTitleShop(player, 1);
@@ -822,7 +822,7 @@ public class GUIManager {
         if (!isAdmin) {
             double balance = economyManager.getBalance(player);
             if (balance < cost) {
-                player.sendMessage("§c呜...主人的余额不足啦！需要 " + cost + " " + economyManager.getCurrencyName() + ", 你现在只有 " + (int) balance + " " + economyManager.getCurrencyName() + " 喵~");
+                player.sendMessage("§c呜...主人的余额不足啦！需要 " + cost + " " + economyManager.getCurrencyName() + ", 你现在只有 " + (long) balance + " " + economyManager.getCurrencyName() + " 喵~");
                 return;
             }
         }

@@ -145,7 +145,7 @@ public class EconomyManager {
      * 格式化金额显示
      */
     public String format(double amount) {
-        return (int) amount + " " + getCurrencyName();
+        return (long) amount + " " + getCurrencyName();
     }
 
     /**

@@ -1187,9 +1187,9 @@ public class ChestGUIManager {
         
         // 版本信息
         gui.setItem(10, ChestGUI.createItem(Material.BOOK, "§a§l查看版本",
-            List.of("§7当前版本: §e1.4.0-beta"), "§a"),
+            List.of("§7当前版本: §e1.4.1-beta"), "§a"),
             (p, click) -> {
-                p.sendMessage("§a呜呼~NekoEssentialsX+ 现在的版本是: §e1.4.0-beta 喵~");
+                p.sendMessage("§a呜呼~NekoEssentialsX+ 现在的版本是: §e1.4.1-beta 喵~");
             });
         
         // 重载配置

@@ -735,7 +735,7 @@ public class DatabaseManager {
      * @param description 交易描述
      * @return 是否添加成功
      */
-    public boolean addTransactionLog(String playerId, String type, int amount, String description) {
+    public boolean addTransactionLog(String playerId, String type, long amount, String description) {
         String sql = "INSERT INTO transaction_log (player_id, type, amount, description) VALUES (?, ?, ?, ?);";
         
         Connection conn = getConnection();
@@ -746,7 +746,7 @@ public class DatabaseManager {
         try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setString(1, playerId);
             pstmt.setString(2, type);
-            pstmt.setInt(3, amount);
+            pstmt.setLong(3, amount);
             pstmt.setString(4, description);
             int rowsAffected = pstmt.executeUpdate();
             return rowsAffected > 0;
